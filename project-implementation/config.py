@@ -5,3 +5,4 @@ hdf5datadir = "/home/mashkarharis/MyFiles/Semester 7/FYP/code/nilocdata-subset/u
 outputdir = "output/" # Output Directory
 locrounding = 0 # No of decimals to round the locations
 timerounding = 0 # No of decimals to round the time
+
