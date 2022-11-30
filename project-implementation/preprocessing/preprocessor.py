@@ -4,6 +4,7 @@
 import os
 import h5py
 import numpy as np
+import pandas as pd
 
 
 class PreProcessor:
@@ -32,7 +33,7 @@ class PreProcessor:
         """
         Select required columns and combine all them together into a np array
         :param hdf5list: name list of hdf5 files in the configured directory
-        :return: np array
+        :return: pandas dataframe
         """
         # Final np array
         alldata = np.empty(shape=(0, 9))
@@ -70,17 +71,17 @@ class PreProcessor:
 
         # Check Shape
         print("Shape of Final Combined Data", np.shape(alldata))
-        return alldata
+        return pd.DataFrame(alldata, columns=["loc_1","loc_2","time","acce_1","acce_2","acce_3","gyro_1","gyro_2","gyro_3"])
+
 
     def __groupdata(self, combined_data):
         """
         Get a combined np array, group/sort data and return it
-        :param combined_data: combined np array
-        :return: grouped/sorted np array
+        :param combined_data: combined pandas dataframe [Loc(2),time,acce(3),gyro(3)]
+        :return: grouped/sorted DataFrame
         """
-        
-        
-        return combined_data
+        grouped_data = combined_data.groupby(["loc_1","loc_2","time"])
+        return grouped_data
 
     def start(self):
         """
@@ -94,3 +95,9 @@ class PreProcessor:
 
         # Group Data By Loc
         grouped_data = self.__groupdata(combined_data)
+
+        # Saving
+        for group_name, df in grouped_data:
+            with open('the_csv.csv', 'a') as f:
+                df.to_csv(f)
+        
