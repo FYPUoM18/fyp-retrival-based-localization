@@ -26,7 +26,7 @@ class PreProcessor:
         for file in os.listdir(self.conf.hdf5datadir):
             if file.endswith(".hdf5"):
                 hdf5list.append(file)
-        print("No of HDF5 files found :", len(hdf5list))
+        print("No of HDF5 files found :", len(hdf5list),"\n")
         return hdf5list
 
     def __select_and_combine(self, hdf5list):
@@ -70,7 +70,7 @@ class PreProcessor:
             print("Added", len(filtered), "data from", hdf5file)
 
         # Check Shape
-        print("Shape of Final Combined Data", np.shape(alldata))
+        print("\nShape of Final Combined Data", np.shape(alldata),"\n")
         return pd.DataFrame(alldata, columns=["loc_1","loc_2","time","acce_1","acce_2","acce_3","gyro_1","gyro_2","gyro_3"])
 
 
@@ -97,7 +97,39 @@ class PreProcessor:
         grouped_data = self.__groupdata(combined_data)
 
         # Saving
-        for group_name, df in grouped_data:
-            with open('the_csv.csv', 'a') as f:
-                df.to_csv(f)
+        # Open New HDF5
+
+        with h5py.File(self.conf.processed_hdf5_outputdir, 'w') as f:
+
+            # Print no of groups
+            grp_len = len(grouped_data)
+            print("No of Groups : ",grp_len)
+
+            # Iterate Over Groups
+            i=0
+            no_of_locs = 0
+            for group_name, df in grouped_data:
+                # Create Names
+                hdf5_collection_id = "loc_"+str(df["loc_1"].iloc[0])+"_"+str(df["loc_2"].iloc[0])
+                hdf5_dataset_id = "time_" + str(df["time"].iloc[0])
+
+                # Get Existing Collections
+                current_collections = [col[0] for col in list(f.items())]
+
+                # If Exists Get That Collection
+                if current_collections.count(hdf5_collection_id) > 0:
+                    collection = f.get(hdf5_collection_id)
+
+                # Else Create New Collection
+                else:
+                    collection = f.create_group(hdf5_collection_id)
+                    no_of_locs=no_of_locs+1
+
+                # Add Data
+                collection.create_dataset(hdf5_dataset_id, data=df.to_numpy())
+                print("Added : ",str(i+1)+"/"+str(grp_len))
+                i=i+1
+
+            print("\nNo of Unique Locations :",no_of_locs)
+
         
