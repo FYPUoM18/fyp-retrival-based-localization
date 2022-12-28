@@ -98,7 +98,7 @@ class PreProcessor:
 
         # Saving
         # Open New HDF5
-
+        
         with h5py.File(self.conf.processed_hdf5_outputdir, 'w') as f:
 
             # Print no of groups
@@ -126,7 +126,7 @@ class PreProcessor:
                     no_of_locs=no_of_locs+1
 
                 # Add Data
-                collection.create_dataset(hdf5_dataset_id, data=df.to_numpy())
+                collection.create_dataset(hdf5_dataset_id, data=df[["acce_1","acce_2","acce_3","gyro_1","gyro_2","gyro_3"]].to_numpy())
                 print("Added : ",str(i+1)+"/"+str(grp_len))
                 i=i+1
 
