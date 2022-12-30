@@ -99,6 +99,7 @@ class PreProcessor:
         # Saving
         # Open New HDF5
         
+        
         with h5py.File(self.conf.processed_hdf5_outputdir, 'w') as f:
 
             # Print no of groups
@@ -108,7 +109,21 @@ class PreProcessor:
             # Iterate Over Groups
             i=0
             no_of_locs = 0
+            total_valid_data_points = 0
             for group_name, df in grouped_data:
+
+                # Print Status
+                print("Adding : ",str(i+1)+"/"+str(grp_len))
+                i=i+1
+
+                # If DF has No Suffiecinet Data Ignore It
+                if df.shape[0]<self.conf.freq_threshold:
+                    continue
+                else:
+                    total_valid_data_points+=1
+                    df = df.head(self.conf.freq_threshold) # Get First N rows
+
+
                 # Create Names
                 hdf5_collection_id = "loc_"+str(df["loc_1"].iloc[0])+"_"+str(df["loc_2"].iloc[0])
                 hdf5_dataset_id = "time_" + str(df["time"].iloc[0])
@@ -127,9 +142,10 @@ class PreProcessor:
 
                 # Add Data
                 collection.create_dataset(hdf5_dataset_id, data=df[["acce_1","acce_2","acce_3","gyro_1","gyro_2","gyro_3"]].to_numpy())
-                print("Added : ",str(i+1)+"/"+str(grp_len))
-                i=i+1
+                
 
             print("\nNo of Unique Locations :",no_of_locs)
+            print("Total No Of Data :",grp_len)
+            print("Total Valid Data (Seq. Len>Threshold) :",total_valid_data_points)
 
         
