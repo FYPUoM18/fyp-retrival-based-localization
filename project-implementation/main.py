@@ -3,6 +3,7 @@ from preprocessing.preprocessor import PreProcessor
 from pair_batch_generator.pairbatchgenerator import PairBatchGenerator
 from contrastive_model.contrastivetrainer import ContrastiveTrainer
 from batch_splitter.train_test_splitter import Train_Test_Splitter
+from embedding_space_generator.embedder import Embedder
 
 steps=config.steps
 
@@ -37,3 +38,16 @@ if __name__ == "__main__":
         ttsplitter = Train_Test_Splitter(config)
         ttsplitter.split_and_save()
         
+    if 5 in steps:
+        print("\n### STEP 5 ###")
+        print("GENERATE EMBED VECTOR SPACE")
+        print("################")
+        embedder = Embedder(config)
+        embedder.embed()
+    
+    if 6 in steps:
+        print("\n### STEP 6 ###")
+        print("EVALUATE EMBED VECTOR SPACE")
+        print("################")
+        embedder = Embedder(config)
+        embedder.eval()

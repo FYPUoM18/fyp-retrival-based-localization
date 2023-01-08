@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # main
-steps=[4]
+steps=[6]
 
 # Preprocessing Configs
 hdf5datadir = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\nilocdata-subset\\unib"  # Directory contains hdf5 files
@@ -33,3 +33,10 @@ contrastive_model_state_save_path = "output\\contrastive_model_state.pt"
 train_tagged_ratio = 0.80
 train_tagged_dat_outputdir = "output\\train_tagged.dat"
 test_tagged_dat_outputdir = "output\\test_tagged.dat"
+
+# Embedding Space Generator
+nn_model_save_path = "output\\motion-to-motion-mapper.model"
+loc_tags_save_path = "output\\loc-tags.txt"
+
+# Embedding Space Validator
+n_neighbors_to_test=10
