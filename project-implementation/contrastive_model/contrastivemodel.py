@@ -1,9 +1,9 @@
 import torch.nn as nn
 
-class EmbedModel(nn.Module):
+class ContrastiveModel(nn.Module):
     
     def __init__(self,conf) -> None:
-        super(EmbedModel,self).__init__()
+        super(ContrastiveModel,self).__init__()
         self.conf=conf
         self.model =nn.Sequential(
             nn.Flatten(),

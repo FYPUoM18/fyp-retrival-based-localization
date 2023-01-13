@@ -1,9 +1,11 @@
 import config
 from preprocessing.preprocessor import PreProcessor
-from batch_generator.batchgenerator import BatchGenerator
-from contrastive_model.trainer import Trainer
+from pair_batch_generator.pairbatchgenerator import PairBatchGenerator
+from contrastive_model.contrastivetrainer import ContrastiveTrainer
+from batch_splitter.train_test_splitter import Train_Test_Splitter
+from embedding_space_generator.embedder import Embedder
 
-steps=[3]
+steps=config.steps
 
 if __name__ == "__main__":
 
@@ -17,16 +19,35 @@ if __name__ == "__main__":
 
     if 2 in steps:
         print("\n### STEP 2 ###")
-        print("BATCH GENERATION")
+        print("PAIR BATCH GENERATION")
         print("##############")
-        batchgenerator = BatchGenerator(config)
-        batchgenerator.start()
+        pairbatchgenerator = PairBatchGenerator(config)
+        pairbatchgenerator.start()
 
     if 3 in steps:
         print("\n### STEP 3 ###")
-        print("TRAIN CONTRSTIVE")
+        print("TRAIN CONTRSTIVE MODEL")
         print("################")
-        trainer = Trainer(config)
-        trainer.train()
+        contrastivetrainer = ContrastiveTrainer(config)
+        contrastivetrainer.train()
 
+    if 4 in steps:
+        print("\n### STEP 4 ###")
+        print("TRAIN TEST SPLITTER")
+        print("################")
+        ttsplitter = Train_Test_Splitter(config)
+        ttsplitter.split_and_save()
         
+    if 5 in steps:
+        print("\n### STEP 5 ###")
+        print("GENERATE EMBED VECTOR SPACE")
+        print("################")
+        embedder = Embedder(config)
+        embedder.embed()
+    
+    if 6 in steps:
+        print("\n### STEP 6 ###")
+        print("EVALUATE EMBED VECTOR SPACE")
+        print("################")
+        embedder = Embedder(config)
+        embedder.eval()

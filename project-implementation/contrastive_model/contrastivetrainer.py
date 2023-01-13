@@ -1,11 +1,11 @@
 import torch
 import h5py
 import numpy as np
-from .embedmodel import EmbedModel
+from .contrastivemodel import ContrastiveModel
 import matplotlib.pyplot as plt
 import random
 
-class Trainer:
+class ContrastiveTrainer:
 
     def __init__(self,conf) -> None:
         self.conf = conf
@@ -62,7 +62,7 @@ class Trainer:
         print("Data Loaders Created")
 
         # Define Network
-        model = EmbedModel(self.conf)
+        model = ContrastiveModel(self.conf)
         loss_func = self.ContastiveLoss
         opt = torch.optim.Adam(model.parameters(), lr = 0.0005)
         print("Model Loaded")
@@ -120,7 +120,7 @@ class Trainer:
         plt.ylim(0, 1)
         fig = plt.gcf()
         plt.show()
-        fig.savefig(self.conf.training_graph_output)
+        fig.savefig(self.conf.contrastive_training_graph_output)
         print("Saved Graph")
-        torch.save(model.state_dict(), self.conf.model_state_save_path)
+        torch.save(model.state_dict(), self.conf.contrastive_model_state_save_path)
         print("Saved Model")

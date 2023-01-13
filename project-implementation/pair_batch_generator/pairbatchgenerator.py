@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import random
 
-class BatchGenerator:
+class PairBatchGenerator:
 
     def __init__(self,conf) -> None:
         self.conf = conf
