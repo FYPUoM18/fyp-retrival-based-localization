@@ -2,20 +2,17 @@
 steps = [2]
 
 # Step1: Generate CSV From HDF5
-hdf5traindatadir = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\nilocdata-subset\\unib\\train"
+hdf5datadir = {
+    "train": "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\nilocdata-subset\\unib\\train",
+    "val": "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\nilocdata-subset\\unib\\val",
+    "test": "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\nilocdata-subset\\unib\\test",
+}
 csv_out_dir = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\outputs\\csv_data"
 preferred_files = {
-    'gyro': "synced/gyro", 
-    #'gyro_uncalib': "synced/gyro_uncalib", 
-    #'gyro_bias': "synced/gyro_bias",
-    'acce': "synced/acce", 
-    #'magnet': "synced/magnet", 
-    'game_rv': "synced/game_rv", 
-    #'linacce': "synced/linacce", 
-    #'gravity': "synced/gravity", 
-    #'step': "synced/step",
-    #'rv': "synced/rv",
-    #'pressure': "synced/pressure"
+    'loc':'computed/aligned_pos',
+    'gyro': "synced/gyro",
+    'acce': "synced/acce",
+    'game_rv': "synced/game_rv"
 }
 
 # Step2: Get RoNIN Trajectory

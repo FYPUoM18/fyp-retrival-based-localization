@@ -43,19 +43,14 @@ NOTICE: the HDF5 library will not read the data until it's actually used. For ex
         to force reading.
 '''
 
-_raw_data_sources = ['gyro', 'acce','game_rv',# 'gyro_uncalib', 'magnet',  'linacce', 
-                     #'rv', 'gyro_bias', 'step','pressure','gravity'
-                     ]
-_optional_data_sources = [#'wifi', 'gps', 'magnetic_rv', 'magnet_uncalib', 'acce_uncalib', 'acce_bias', 'battery', 'FLP', 'magnet_bias'
-                         ]
+_raw_data_sources = ['gyro', 'acce', 'game_rv']
+_optional_data_sources = []
 
-# _nano_to_sec = 1e09
-# _micro_to_nano = 1000
 
 class Compiler:
 
-    def __init__(self,conf) -> None:
-        self.conf=conf
+    def __init__(self, conf) -> None:
+        self.conf = conf
 
     def interpolate_vector_linear(self, input, input_timestamp, output_timestamp):
         """
@@ -72,18 +67,19 @@ class Compiler:
         interpolated = func(output_timestamp)
         return interpolated
 
-
     def process_data_source(self, raw_data, output_time, method):
         input_time = raw_data[:, 0]
         if method == 'vector':
-            output_data = self.interpolate_vector_linear(raw_data[:, 1:], input_time, output_time)
+            output_data = self.interpolate_vector_linear(
+                raw_data[:, 1:], input_time, output_time)
         elif method == 'quaternion':
             assert raw_data.shape[1] == 5
-            output_data = interpolate_quaternion_linear(raw_data[:, 1:], input_time, output_time)
+            output_data = interpolate_quaternion_linear(
+                raw_data[:, 1:], input_time, output_time)
         else:
-            raise ValueError('Interpolation method must be "vector" or "quaternion"')
+            raise ValueError(
+                'Interpolation method must be "vector" or "quaternion"')
         return output_data
-
 
     def compute_output_time(self, all_sources, sample_rate=200):
         """
@@ -98,16 +94,14 @@ class Compiler:
         max_t = min([data[-1, 0] for data in all_sources.values()]) - interval
         return np.arange(min_t, max_t, interval)
 
-
     def get_ronin_resnet_traj(self, data_path, ronin_checkpoint):
-        
+
         kwargs = {'step_size': 10,
-                'window_size': 200,
-                'model_path': ronin_checkpoint,
-                'feature_sigma': 0.00001}
+                  'window_size': 200,
+                  'model_path': ronin_checkpoint,
+                  'feature_sigma': 0.00001}
         traj = test_sequence(data_path, **kwargs)
         return traj
-
 
     def load_wifi_dataset(self, path):
         """
@@ -130,18 +124,19 @@ class Compiler:
                     if values[2] == 'f':
                         continue
                     scan_no += 1
-                    scans.append([scan_no, int(values[0]), int(values[1]), 1 if values[2] == 's' else 0])
+                    scans.append([scan_no, int(values[0]), int(
+                        values[1]), 1 if values[2] == 's' else 0])
                 elif len(values) == 1:
                     scan_no += 1
                     scans.append([scan_no, int(values[0]), 0, 1])
                 else:
-                    df_mac_addr.append([values[1], " " if len(values) < 8 else values[7]])
+                    df_mac_addr.append(
+                        [values[1], " " if len(values) < 8 else values[7]])
                     df_num.append([scan_no, int(values[0]), int(values[2]), int(values[3]), int(values[4]), int(values[5]),
-                                int(values[6])])
+                                   int(values[6])])
         df_mac_addr = np.array(df_mac_addr, dtype=object)
         df_num = np.array(df_num, dtype=np.int)
         return df_num, df_mac_addr, np.asarray(scans)
-
 
     def load_map_data(self, path):
         """
@@ -156,7 +151,8 @@ class Compiler:
         mapfiles.sort()
         lines = []
         for mapfile in mapfiles:
-            if not mapfile.endswith('.txt'): continue
+            if not mapfile.endswith('.txt'):
+                continue
             with open(osp.join(path, mapfile), 'r') as f:
                 for line in f:
                     if line[0] == '#' or not line.strip():
@@ -174,13 +170,15 @@ class Compiler:
             if b == line[0]:
                 l += 1
                 c += 1
-                data.append([int(line[1]), float(line[2]), float(line[3]), float(line[4]), float(line[5])])
+                data.append([int(line[1]), float(line[2]), float(
+                    line[3]), float(line[4]), float(line[5])])
             else:
                 print(b, c)
                 if c > 0:
                     building.append(b)
                     count[-1][-1] = c
-                data.append([int(line[1]), float(line[2]), float(line[3]), float(line[4]), float(line[5])])
+                data.append([int(line[1]), float(line[2]), float(
+                    line[3]), float(line[4]), float(line[5])])
                 count.append([l, 0])
                 b = line[0]
                 c = 1
@@ -192,19 +190,18 @@ class Compiler:
 
         return np.asarray(data), np.asarray(count), building
 
-
     def filter_data(self, data, output_time, reference_time=None):
         # return data with in the output time range
         if data is None or len(data) < 1:
             return None
 
         if reference_time is not None:
-            data[:, 0] = (data[:, 0] - reference_time)# / _nano_to_sec
-        data = data[np.logical_and(data[:, 0] >= output_time[0], data[:, 0] <= output_time[-1])]
+            data[:, 0] = (data[:, 0] - reference_time)  # / _nano_to_sec
+        data = data[np.logical_and(
+            data[:, 0] >= output_time[0], data[:, 0] <= output_time[-1])]
         return data
 
-
-    def compile_unannotated_sequence(self, root_dir, data_list, ronin_checkpoint,out_dir):
+    def compile_unannotated_sequence(self, root_dir, data_list, ronin_checkpoint, out_dir):
         """
         Compile unannotated(or imu_only) sequence directly from raw files.
         """
@@ -220,7 +217,7 @@ class Compiler:
                 if osp.isdir(out_path):
                     shutil.rmtree(out_path)
                     os.makedirs(out_path)
-                   
+
                 else:
                     os.makedirs(out_path)
 
@@ -231,21 +228,25 @@ class Compiler:
                 all_sources = {}
                 # We assume that all IMU/magnetic/pressure files must exist.
                 try:
-                    reference_time = np.loadtxt(osp.join(data_path, 'reference_time.txt')).tolist()
+                    reference_time = np.loadtxt(
+                        osp.join(data_path, 'reference_time.txt')).tolist()
                 except:
                     reference_time = 0
                 for source in source_all:
                     try:
                         source_path = osp.join(root_dir, data, source + '.txt')
                         source_data = np.genfromtxt(source_path)
-                        source_data[:, 0] = (source_data[:, 0] - reference_time)# / _nano_to_sec
+                        source_data[:, 0] = (
+                            source_data[:, 0] - reference_time)  # / _nano_to_sec
                         all_sources[source] = source_data
                     except OSError:
-                        print('Can not find file for source {}. Please check the dataset.'.format(source_path))
+                        print('Can not find file for source {}. Please check the dataset.'.format(
+                            source_path))
                         continue
                 if osp.exists(osp.join(root_dir, data, 'pose.txt')):
                     pose = np.genfromtxt(osp.join(root_dir, data, 'pose.txt'))
-                    pose[:, 0] = (pose[:, 0] - reference_time) #/ _nano_to_sec
+                    # / _nano_to_sec
+                    pose[:, 0] = (pose[:, 0] - reference_time)
                     all_sources['tango_pos'] = pose[:, :4]
                     all_sources['tango_ori'] = pose[:, [0, -4, -3, -2, -1]]
                     source_vector.add('tango_pos')
@@ -255,34 +256,39 @@ class Compiler:
                 processed_sources = {}
                 for source in all_sources.keys():
                     if source in source_vector:
-                        processed_sources[source] = self.process_data_source(all_sources[source], output_time, 'vector')
+                        processed_sources[source] = self.process_data_source(
+                            all_sources[source], output_time, 'vector')
                     else:
                         print(output_time)
                         processed_sources[source] = self.process_data_source(
                             all_sources[source][:, [0, 4, 1, 2, 3]], output_time, 'quaternion')
 
                 meta_info = {'type': 'unannotated',
-                            'length': output_time[-1] - output_time[0],
-                            'imu_reference_time': reference_time}
-                json.dump(meta_info, open(osp.join(out_path, 'info.json'), 'w'))
+                             'length': output_time[-1] - output_time[0],
+                             'imu_reference_time': reference_time}
+                json.dump(meta_info, open(
+                    osp.join(out_path, 'info.json'), 'w'))
                 with h5py.File(osp.join(out_path, 'data.hdf5'), 'x') as f:
                     f.create_group('raw/imu')
                     for source in _raw_data_sources:
 
                         f.create_dataset('raw/imu/' + source,
-                                        data=np.genfromtxt(osp.join(data_path, source + '.txt')))
+                                         data=np.genfromtxt(osp.join(data_path, source + '.txt')))
                     for source in _optional_data_sources:
                         if osp.isfile(osp.join(data_path, source + '.txt')):
                             if source == 'wifi':
-                                data_num, data_string, scans = self.load_wifi_dataset(osp.join(data_path, source + '.txt'))
-                                f.create_dataset('raw/imu/wifi_values', data=data_num)
+                                data_num, data_string, scans = self.load_wifi_dataset(
+                                    osp.join(data_path, source + '.txt'))
+                                f.create_dataset(
+                                    'raw/imu/wifi_values', data=data_num)
                                 f.create_dataset('raw/imu/wifi_address', data=data_string,
-                                                dtype=h5py.special_dtype(vlen=str))
-                                f.create_dataset('raw/imu/wifi_scans', data=scans)
+                                                 dtype=h5py.special_dtype(vlen=str))
+                                f.create_dataset(
+                                    'raw/imu/wifi_scans', data=scans)
                             else:
                                 try:
                                     f.create_dataset('raw/imu/' + source,
-                                                    data=np.genfromtxt(osp.join(data_path, source + '.txt')))
+                                                     data=np.genfromtxt(osp.join(data_path, source + '.txt')))
                                 except IOError:
                                     pass
 
@@ -290,9 +296,11 @@ class Compiler:
                     f.create_dataset('synced/time', data=output_time)
                     for source in source_all:
                         if source == 'gravity':
-                            f.create_dataset('synced/' + source, data=processed_sources['gravity'])
+                            f.create_dataset(
+                                'synced/' + source, data=processed_sources['gravity'])
                         else:
-                            f.create_dataset('synced/' + source, data=processed_sources[source])
+                            f.create_dataset(
+                                'synced/' + source, data=processed_sources[source])
 
                     # f.create_group('filtered')
                     # flp = self.filter_data(np.genfromtxt(osp.join(data_path, 'FLP.txt')), output_time, reference_time)
@@ -300,16 +308,18 @@ class Compiler:
                     #     f.create_dataset('filtered/flp', data=flp)
                 if 'tango_pos' in source_vector:
                     f.create_group('pose')
-                    f.create_dataset('pose/tango_pos', data=processed_sources['tango_pos'])
-                    f.create_dataset('pose/tango_ori', data=processed_sources['tango_ori'])
+                    f.create_dataset('pose/tango_pos',
+                                     data=processed_sources['tango_pos'])
+                    f.create_dataset('pose/tango_ori',
+                                     data=processed_sources['tango_ori'])
 
                 print('Calculate ronin trajectory')
-                ronin_traj = self.get_ronin_resnet_traj(out_path,ronin_checkpoint)
+                ronin_traj = self.get_ronin_resnet_traj(
+                    out_path, ronin_checkpoint)
                 with h5py.File(osp.join(out_path, 'data.hdf5'), 'a') as f:
                     f.create_group('computed')
                     f.create_dataset('computed/ronin', data=ronin_traj)
 
-                
             except (OSError, FileNotFoundError, TypeError) as e:
                 print(e)
                 fail_list.append(data)
@@ -317,16 +327,20 @@ class Compiler:
         print('Fail list:')
         [print(data) for data in fail_list]
 
-
     def compile(self):
-        
-        root_dir=self.conf.csvdatadir
-        data_list=[osp.split(path)[1] for path in os.listdir(root_dir)]
-        out_dir=self.conf.out_dir
-        ronin_checkpoint=self.conf.ronin_checkpoint
 
-        if os.path.exists(out_dir):
-            shutil.rmtree(out_dir)
-        os.makedirs(out_dir)
-        
-        self.compile_unannotated_sequence(root_dir, data_list, ronin_checkpoint,out_dir)
+        csv_dir = self.conf.csvdatadir
+        folder_list = [osp.split(path)[1] for path in os.listdir(csv_dir)]
+
+        for folder in folder_list:
+            root_dir = osp.join(csv_dir, folder)
+            data_list = [osp.split(path)[1] for path in os.listdir(root_dir)]
+            out_dir = osp.join(self.conf.out_dir, folder)
+            ronin_checkpoint = self.conf.ronin_checkpoint
+
+            if os.path.exists(out_dir):
+                shutil.rmtree(out_dir)
+            os.makedirs(out_dir)
+
+            self.compile_unannotated_sequence(
+                root_dir, data_list, ronin_checkpoint, out_dir)
