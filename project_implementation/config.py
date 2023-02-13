@@ -21,5 +21,6 @@ ronin_checkpoint = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_im
 processed_hdf5_out_dir = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\outputs\\processed_data"
 
 # Step3 : Draw Trajectory
-window_w_h=100
 traj_drawing_out_dir="C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\outputs\\traj_visualized"
+time_window_size=10 # Seconds
+time_stride=5 # Seconds
