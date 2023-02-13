@@ -1,5 +1,5 @@
 # Steps
-steps = [2]
+steps = [3]
 
 # Step1: Generate CSV From HDF5
 hdf5datadir = {
@@ -18,4 +18,8 @@ preferred_files = {
 # Step2: Get RoNIN Trajectory
 csvdatadir = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\outputs\\csv_data"
 ronin_checkpoint = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\ronin_resnet\\checkpoint_gsn_latest.pt"
-out_dir = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\outputs\\processed_data"
+processed_hdf5_out_dir = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\outputs\\processed_data"
+
+# Step3 : Draw Trajectory
+window_w_h=100
+traj_drawing_out_dir="C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\outputs\\traj_visualized"

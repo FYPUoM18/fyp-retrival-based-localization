@@ -43,8 +43,7 @@ NOTICE: the HDF5 library will not read the data until it's actually used. For ex
         to force reading.
 '''
 
-_raw_data_sources = ['gyro', 'acce', 'game_rv']
-_optional_data_sources = []
+
 
 
 class Compiler:
@@ -190,25 +189,31 @@ class Compiler:
 
         return np.asarray(data), np.asarray(count), building
 
-    def filter_data(self, data, output_time, reference_time=None):
-        # return data with in the output time range
-        if data is None or len(data) < 1:
-            return None
+    # def filter_data(self, data, output_time, reference_time=None):
+    #     # return data with in the output time range
+    #     if data is None or len(data) < 1:
+    #         return None
 
-        if reference_time is not None:
-            data[:, 0] = (data[:, 0] - reference_time)  # / _nano_to_sec
-        data = data[np.logical_and(
-            data[:, 0] >= output_time[0], data[:, 0] <= output_time[-1])]
-        return data
+    #     if reference_time is not None:
+    #         data[:, 0] = (data[:, 0] - reference_time) /divider
+    #     data = data[np.logical_and(
+    #         data[:, 0] >= output_time[0], data[:, 0] <= output_time[-1])]
+    #     return data
 
-    def compile_unannotated_sequence(self, root_dir, data_list, ronin_checkpoint, out_dir):
+    def compile_unannotated_sequence(self, root_dir, data_list, ronin_checkpoint, out_dir,isnano,is_loc_available):
         """
         Compile unannotated(or imu_only) sequence directly from raw files.
         """
         source_vector = {'gyro', 'acce'}
         source_quaternion = {'game_rv'}
-        source_all = source_vector.union(source_quaternion)
         fail_list = []
+        divider = 1000000000 if isnano else 1
+        _raw_data_sources = ['gyro', 'acce', 'game_rv']
+        _optional_data_sources = []
+        if is_loc_available:
+            source_vector.add('loc')
+            _raw_data_sources.append('loc')
+        source_all = source_vector.union(source_quaternion)
 
         for data in data_list:
             try:
@@ -237,7 +242,7 @@ class Compiler:
                         source_path = osp.join(root_dir, data, source + '.txt')
                         source_data = np.genfromtxt(source_path)
                         source_data[:, 0] = (
-                            source_data[:, 0] - reference_time)  # / _nano_to_sec
+                            source_data[:, 0] - reference_time)  / divider
                         all_sources[source] = source_data
                     except OSError:
                         print('Can not find file for source {}. Please check the dataset.'.format(
@@ -245,8 +250,7 @@ class Compiler:
                         continue
                 if osp.exists(osp.join(root_dir, data, 'pose.txt')):
                     pose = np.genfromtxt(osp.join(root_dir, data, 'pose.txt'))
-                    # / _nano_to_sec
-                    pose[:, 0] = (pose[:, 0] - reference_time)
+                    pose[:, 0] = (pose[:, 0] - reference_time) /divider
                     all_sources['tango_pos'] = pose[:, :4]
                     all_sources['tango_ori'] = pose[:, [0, -4, -3, -2, -1]]
                     source_vector.add('tango_pos')
@@ -269,28 +273,28 @@ class Compiler:
                 json.dump(meta_info, open(
                     osp.join(out_path, 'info.json'), 'w'))
                 with h5py.File(osp.join(out_path, 'data.hdf5'), 'x') as f:
-                    f.create_group('raw/imu')
-                    for source in _raw_data_sources:
-
-                        f.create_dataset('raw/imu/' + source,
-                                         data=np.genfromtxt(osp.join(data_path, source + '.txt')))
-                    for source in _optional_data_sources:
-                        if osp.isfile(osp.join(data_path, source + '.txt')):
-                            if source == 'wifi':
-                                data_num, data_string, scans = self.load_wifi_dataset(
-                                    osp.join(data_path, source + '.txt'))
-                                f.create_dataset(
-                                    'raw/imu/wifi_values', data=data_num)
-                                f.create_dataset('raw/imu/wifi_address', data=data_string,
-                                                 dtype=h5py.special_dtype(vlen=str))
-                                f.create_dataset(
-                                    'raw/imu/wifi_scans', data=scans)
-                            else:
-                                try:
-                                    f.create_dataset('raw/imu/' + source,
-                                                     data=np.genfromtxt(osp.join(data_path, source + '.txt')))
-                                except IOError:
-                                    pass
+                    # f.create_group('raw/imu')
+                    # for source in _raw_data_sources:
+                    #     print(source)
+                    #     f.create_dataset('raw/imu/' + source,
+                    #                      data=np.genfromtxt(osp.join(data_path, source + '.txt')))
+                    # for source in _optional_data_sources:
+                    #     if osp.isfile(osp.join(data_path, source + '.txt')):
+                    #         if source == 'wifi':
+                    #             data_num, data_string, scans = self.load_wifi_dataset(
+                    #                 osp.join(data_path, source + '.txt'))
+                    #             f.create_dataset(
+                    #                 'raw/imu/wifi_values', data=data_num)
+                    #             f.create_dataset('raw/imu/wifi_address', data=data_string,
+                    #                              dtype=h5py.special_dtype(vlen=str))
+                    #             f.create_dataset(
+                    #                 'raw/imu/wifi_scans', data=scans)
+                    #         else:
+                    #             try:
+                    #                 f.create_dataset('raw/imu/' + source,
+                    #                                  data=np.genfromtxt(osp.join(data_path, source + '.txt')))
+                    #             except IOError:
+                    #                 pass
 
                     f.create_group('synced')
                     f.create_dataset('synced/time', data=output_time)
@@ -335,12 +339,19 @@ class Compiler:
         for folder in folder_list:
             root_dir = osp.join(csv_dir, folder)
             data_list = [osp.split(path)[1] for path in os.listdir(root_dir)]
-            out_dir = osp.join(self.conf.out_dir, folder)
+            out_dir = osp.join(self.conf.processed_hdf5_out_dir, folder)
             ronin_checkpoint = self.conf.ronin_checkpoint
 
             if os.path.exists(out_dir):
                 shutil.rmtree(out_dir)
             os.makedirs(out_dir)
 
+            is_nano=False
+            is_loc_available=True
+            if folder=="mobile":
+                is_nano=True
+                is_loc_available=False
+
+
             self.compile_unannotated_sequence(
-                root_dir, data_list, ronin_checkpoint, out_dir)
+                root_dir, data_list, ronin_checkpoint, out_dir,is_nano,is_loc_available)
