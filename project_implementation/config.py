@@ -24,3 +24,5 @@ processed_hdf5_out_dir = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\proj
 traj_drawing_out_dir="C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\outputs\\traj_visualized"
 time_window_size=10 # Seconds
 time_stride=5 # Seconds
+x_one_side_range=10
+y_one_side_range=10
