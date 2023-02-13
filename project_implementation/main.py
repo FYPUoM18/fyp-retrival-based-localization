@@ -21,7 +21,7 @@ if __name__ == "__main__":
         traj_visualizer=TrajVisualizer(config)
         traj_visualizer.drawRoNINTraj()
 
-    # TODO: Put Sample Mobile With None Loc and ReGenerate all [PROGRESSING], 
-    #       Build Diagram [], 
-    #       Method To Draw Tajactories,
-    #       Draw Trajectories For Original RoNIN/Our RoNIN, Cut Data To Make Similar Time Check Whether Similar Values
+    # TODO:     #Build Diagram [], 
+    #           #VGG FEature Extractor
+    #           #Use Feature Extractor and build offline DB
+    #           #Runtime :For Each Image In Test/Val: Use Feature Exaractor-> Extract Features -> Find Top 10 matchings -> Note Rank/None
