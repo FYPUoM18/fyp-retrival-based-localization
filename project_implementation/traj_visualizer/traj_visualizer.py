@@ -88,17 +88,21 @@ class TrajVisualizer:
                     if not os.path.exists(save_path):
                         os.makedirs(save_path)
 
-                    x_one_side_range=5
-                    y_one_side_range=5
+                    x_one_side_range=self.conf.x_one_side_range
+                    y_one_side_range=self.conf.y_one_side_range
 
                     # Plot and Save
                     x=centered_trajs_for_slices[i][:,0]
                     y=centered_trajs_for_slices[i][:,1]
-
-                    assert(centered_trajs_for_slices[i][:,0])
-                    plt.scatter(x=x, y=y,s=0.1,c="black")
+                    
+                    assert(min(x)>=-x_one_side_range and max(x)<=x_one_side_range)
+                    assert(min(y)>=-y_one_side_range and max(y)<=y_one_side_range)
+                    
+                    plt.scatter(x=x, y=y,s=0.01,linewidths=0.05,c="black")
                     plt.axis('off')
-                    plt.savefig(img_path)
+                    plt.xlim([-x_one_side_range,x_one_side_range])
+                    plt.ylim([-y_one_side_range,y_one_side_range])
+                    plt.savefig(img_path,dpi=300)
                     plt.clf()
                     print("Saved",img_path)
 
