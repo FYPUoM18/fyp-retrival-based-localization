@@ -22,17 +22,17 @@ if __name__ == "__main__":
         traj_visualizer=TrajVisualizer(config)
         traj_visualizer.drawRoNINTraj()
 
-    if 4 in steps:
-        feature_extractor=FeatureExtractor(config)
-        feature_extractor.generate_feature_db()
-    
-    if 5 in steps:
-        feature_extractor=FeatureExtractor(config)
-        feature_nps,feature_locs=feature_extractor.load_features_db()
-        feature_extractor.find_best_matchings("loc_52_107",
-        "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\code\\project_implementation\outputs\\traj_visualized\\test\\"+
-            "loc_52_107-d6be7ae7-0065-49f7-a7cb-bd5dd047b0a9.png",
-        feature_nps,feature_locs,100)
+    # if 4 in steps:
+    #     feature_extractor=FeatureExtractor(config)
+    #     feature_extractor.generate_feature_db()
+    #
+    # if 5 in steps:
+    #     feature_extractor=FeatureExtractor(config)
+    #     feature_nps,feature_locs=feature_extractor.load_features_db()
+    #     feature_extractor.find_best_matchings("loc_52_107",
+    #     "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\code\\project_implementation\outputs\\traj_visualized\\test\\"+
+    #         "loc_52_107-d6be7ae7-0065-49f7-a7cb-bd5dd047b0a9.png",
+    #     feature_nps,feature_locs,100)
 
 
     # TODO:     #Build Diagram [], 

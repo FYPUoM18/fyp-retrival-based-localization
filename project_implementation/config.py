@@ -1,5 +1,5 @@
 # Steps
-steps = [5]
+steps = [3]
 
 # Step1: Generate CSV From HDF5
 hdf5datadir = {
@@ -26,6 +26,8 @@ time_window_size=10 # Seconds
 time_stride=5 # Seconds
 x_one_side_range=10
 y_one_side_range=10
+x_one_side_range_full_traj=300
+y_one_side_range_full_traj=300
 
 # Step 4 : Generate Feature DB
 feature_db_dir = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\outputs\\feature_db"
