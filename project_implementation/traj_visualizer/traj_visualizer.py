@@ -1,14 +1,10 @@
-import h5py
-import argparse
-import json
 import os
-import uuid
 import shutil
-import sys
-import matplotlib.pyplot as plt
-import collections
-import numpy as np
 from os import path as osp
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 class TrajVisualizer:
@@ -25,77 +21,6 @@ class TrajVisualizer:
                 list_of_hdf5s.append((folder,file,file_loc))
         return list_of_hdf5s
 
-    def get_time_slices(self, hdf5):
-
-        time_slices = []
-
-        with h5py.File(hdf5[1], 'r') as f:
-            # Get Sub Times
-            times = list(f.get("synced/time")[:])
-            marker_start = times[0]
-            marker_end = marker_start + self.conf.time_window_size
-
-            while True:
-                current_slice = []
-                for i in range(len(times)):
-                    if times[i] >= marker_start and times[i] <= marker_end:
-                        current_slice.append(i)
-
-                time_slices.append(current_slice)
-                marker_start += self.conf.time_stride
-                marker_end += self.conf.time_stride
-                if marker_end > times[-1]:
-                    break
-        return time_slices
-
-    # def drawTrajWindows(self, hdf5, f):
-    #
-    #     # Get Time Slices
-    #     time_slices = self.get_time_slices(hdf5)
-    #
-    #     # Get Mean Locs For Those Time Slices
-    #     if f.get("synced/loc") != None:
-    #         locs_for_slices = [np.take(f.get("synced/loc")[:], time_slice, axis=0) for time_slice in time_slices]
-    #         mean_locs_for_slices = [np.rint(np.median(loc_slice, axis=0)) for loc_slice in locs_for_slices]
-    #
-    #         # Get Trajectory For Slices
-    #     trajs_for_slices = [np.take(f.get("computed/ronin")[:], time_slice, axis=0) for time_slice in time_slices]
-    #
-    #     # Centerize Traj For Slices
-    #     centered_trajs_for_slices = [traj - traj[0, :] for traj in trajs_for_slices]
-    #
-    #     for i in range(len(centered_trajs_for_slices)):
-    #
-    #         # Name Directory
-    #         if f.get("synced/loc") != None:
-    #             folder_name = "loc_" + str(int(mean_locs_for_slices[i][0])) + "_" + str(int(mean_locs_for_slices[i][1]))
-    #         else:
-    #             folder_name = "loc_no_no"
-    #         save_path = osp.join(self.conf.traj_drawing_out_dir, hdf5[0])
-    #         img_path = osp.join(self.conf.traj_drawing_out_dir, hdf5[0], folder_name + "-" + str(uuid.uuid4()) + ".png")
-    #
-    #         # Create Directory
-    #         if not os.path.exists(save_path):
-    #             os.makedirs(save_path)
-    #
-    #         x_one_side_range = self.conf.x_one_side_range
-    #         y_one_side_range = self.conf.y_one_side_range
-    #
-    #         # Plot and Save
-    #         x = centered_trajs_for_slices[i][:, 0]
-    #         y = centered_trajs_for_slices[i][:, 1]
-    #
-    #         assert (min(x) >= -x_one_side_range and max(x) <= x_one_side_range)
-    #         assert (min(y) >= -y_one_side_range and max(y) <= y_one_side_range)
-    #
-    #         plt.scatter(x=x, y=y, s=0.01, linewidths=0.05, c="black")
-    #         plt.axis('off')
-    #         plt.xlim([-x_one_side_range, x_one_side_range])
-    #         plt.ylim([-y_one_side_range, y_one_side_range])
-    #         plt.savefig(img_path, dpi=300)
-    #         plt.clf()
-    #         print("Saved", img_path)
-
     def drawTrajAll(self, hdf5):
 
         with h5py.File(hdf5[2], 'r') as f:
@@ -109,23 +34,20 @@ class TrajVisualizer:
                 os.makedirs(save_path)
 
             # Get Trajectory
-            traj = f.get("computed/ronin")[:]
+            ronin = f.get("computed/ronin")[:]
+            real = f.get("synced/loc")[:]
 
-            x_one_side_range = self.conf.x_one_side_range_full_traj
-            y_one_side_range = self.conf.y_one_side_range_full_traj
 
             # Plot and Save
-            x = traj[:, 0]
-            y = traj[:, 1]
+            x = ronin[:, 0]
+            y = ronin[:, 1]
+            real_x = real[:,0] - real[0,0]
+            real_y = real[:,1] - real[0,1]
 
-            #print(min(x),max(x),min(y),max(y))
-            # assert (min(x) >= -x_one_side_range and max(x) <= x_one_side_range)
-            # assert (min(y) >= -y_one_side_range and max(y) <= y_one_side_range)
 
-            plt.scatter(x=x, y=y, s=0.01, linewidths=0.01, c="blue")
+            plt.scatter(x=x, y=y, s=0.01, linewidths=0.01, c="blue",label="RoNIN")
+            plt.scatter(x=real_x, y=real_y, s=0.01, linewidths=0.01, c="red",label="Ground Truth")
             plt.axis('off')
-            # plt.xlim([-x_one_side_range, x_one_side_range])
-            # plt.ylim([-y_one_side_range, y_one_side_range])
             plt.savefig(img_path, dpi=1000)
             plt.clf()
             print("Saved", img_path)
@@ -133,9 +55,9 @@ class TrajVisualizer:
             # Create CSV
             if f.get("synced/loc") != None:
                 real_locs = f.get("synced/loc")[:]
-                csv_data = np.concatenate((traj,real_locs), axis=1)
+                csv_data = np.concatenate((ronin,real_locs), axis=1)
             else:
-                csv_data = np.array(traj)
+                csv_data = np.array(ronin)
 
             np.savetxt(csv_path, csv_data, delimiter=",",fmt='%.16f',comments='',header=','.join(["traj_x","traj_y","loc_x","loc_y"]))
 
@@ -149,24 +71,3 @@ class TrajVisualizer:
 
         for hdf5 in list_of_hdf5s:
             self.drawTrajAll(hdf5)
-
-        # # Find Min Max For The Specific Building
-        # loc_0=[]
-        # loc_1=[]
-        # for hdf5 in list_of_hdf5s:
-        #     with h5py.File(hdf5[1], 'r') as f:
-        #         # Get Traj
-        #         traj_arr=f.get("computed/ronin")[:]
-        #         loc_0.extend(list(traj_arr[:,0]))
-        #         loc_1.extend(list(traj_arr[:,1]))
-
-        # for hdf5 in list_of_hdf5s:
-        #     with h5py.File(hdf5[1], 'r') as f:
-        #         traj_arr=f.get("computed/ronin")[:]
-        #         time = f.get("synced/time")[:]
-        #         plt.scatter(x=traj_arr[:,0], y=traj_arr[:,1],s=0.1,c="black")
-        #         plt.axis("off")
-        #         plt.xlim([min(loc_0),max(loc_0)])
-        #         plt.ylim([min(loc_1),max(loc_1)])
-        #         os.makedirs(save_loc)
-        #         plt.savefig(osp.join(save_loc,"traj.png"))

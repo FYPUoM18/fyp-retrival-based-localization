@@ -11,7 +11,6 @@ import scipy
 from compile_dataset.math_utils import interpolate_quaternion_linear
 from compile_dataset.ronin_resnet_minimal import test_sequence
 
-
 sys.path.append(osp.join(osp.dirname(osp.abspath(__file__)), '..'))
 
 '''
@@ -42,8 +41,6 @@ NOTICE: the HDF5 library will not read the data until it's actually used. For ex
                gyro = np.copy(f['synced/gyro'])
         to force reading.
 '''
-
-
 
 
 class Compiler:
@@ -131,8 +128,9 @@ class Compiler:
                 else:
                     df_mac_addr.append(
                         [values[1], " " if len(values) < 8 else values[7]])
-                    df_num.append([scan_no, int(values[0]), int(values[2]), int(values[3]), int(values[4]), int(values[5]),
-                                   int(values[6])])
+                    df_num.append(
+                        [scan_no, int(values[0]), int(values[2]), int(values[3]), int(values[4]), int(values[5]),
+                         int(values[6])])
         df_mac_addr = np.array(df_mac_addr, dtype=object)
         df_num = np.array(df_num, dtype=np.int)
         return df_num, df_mac_addr, np.asarray(scans)
@@ -200,7 +198,7 @@ class Compiler:
     #         data[:, 0] >= output_time[0], data[:, 0] <= output_time[-1])]
     #     return data
 
-    def compile_unannotated_sequence(self, root_dir, data_list, ronin_checkpoint, out_dir,isnano,is_loc_available):
+    def compile_unannotated_sequence(self, root_dir, data_list, ronin_checkpoint, out_dir, isnano, is_loc_available):
         """
         Compile unannotated(or imu_only) sequence directly from raw files.
         """
@@ -241,8 +239,7 @@ class Compiler:
                     try:
                         source_path = osp.join(root_dir, data, source + '.txt')
                         source_data = np.genfromtxt(source_path)
-                        source_data[:, 0] = (
-                            source_data[:, 0] - reference_time)  / divider
+                        source_data[:, 0] = (source_data[:, 0] - reference_time) / divider
                         all_sources[source] = source_data
                     except OSError:
                         print('Can not find file for source {}. Please check the dataset.'.format(
@@ -250,7 +247,7 @@ class Compiler:
                         continue
                 if osp.exists(osp.join(root_dir, data, 'pose.txt')):
                     pose = np.genfromtxt(osp.join(root_dir, data, 'pose.txt'))
-                    pose[:, 0] = (pose[:, 0] - reference_time) /divider
+                    pose[:, 0] = (pose[:, 0] - reference_time) / divider
                     all_sources['tango_pos'] = pose[:, :4]
                     all_sources['tango_ori'] = pose[:, [0, -4, -3, -2, -1]]
                     source_vector.add('tango_pos')
@@ -346,12 +343,11 @@ class Compiler:
                 shutil.rmtree(out_dir)
             os.makedirs(out_dir)
 
-            is_nano=False
-            is_loc_available=True
-            if folder=="mobile":
-                is_nano=True
-                is_loc_available=False
-
+            is_nano = False
+            is_loc_available = True
+            if folder == "mobile":
+                is_nano = True
+                is_loc_available = False
 
             self.compile_unannotated_sequence(
-                root_dir, data_list, ronin_checkpoint, out_dir,is_nano,is_loc_available)
+                root_dir, data_list, ronin_checkpoint, out_dir, is_nano, is_loc_available)
