@@ -1,13 +1,14 @@
 # Steps
-steps = [3]
+steps = [4]
+
+# Root Dir
+root_dir="C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code"
 
 # Step1: Generate CSV From HDF5
 hdf5datadir = {
-    "train": "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\nilocdata-subset\\unib\\train",
-    "val": "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\nilocdata-subset\\unib\\val",
-    "test": "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\nilocdata-subset\\unib\\test",
+    "db": f"{root_dir}\\nilocdata-subset\\unib",
 }
-csv_out_dir = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\outputs\\csv_data"
+csv_out_dir = f"{root_dir}\\project_implementation\\outputs\\csv_data"
 preferred_files = {
     'loc':'computed/aligned_pos',
     'gyro': "synced/gyro",
@@ -16,18 +17,14 @@ preferred_files = {
 }
 
 # Step2: Get RoNIN Trajectory
-csvdatadir = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\outputs\\csv_data"
-ronin_checkpoint = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\ronin_resnet\\checkpoint_gsn_latest.pt"
-processed_hdf5_out_dir = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\outputs\\processed_data"
+csvdatadir = f"{root_dir}\\project_implementation\\outputs\\csv_data"
+ronin_checkpoint = f"{root_dir}\\project_implementation\\ronin_resnet\\checkpoint_gsn_latest.pt"
+processed_hdf5_out_dir = f"{root_dir}\\project_implementation\\outputs\\processed_data"
 
 # Step3 : Draw Trajectory
-traj_drawing_out_dir="C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\outputs\\traj_visualized"
-time_window_size=10 # Seconds
-time_stride=5 # Seconds
-x_one_side_range=10
-y_one_side_range=10
-x_one_side_range_full_traj=300
-y_one_side_range_full_traj=300
+traj_drawing_out_dir=f"{root_dir}\\project_implementation\\outputs\\traj_visualized"
 
-# Step 4 : Generate Feature DB
-feature_db_dir = "C:\\Users\\mashk\\MyFiles\\Semester 7\\FYP\\code\\project_implementation\\outputs\\feature_db"
+# Step4 : Make Time & Rotation Invariant
+invariant_domain_output_dir = f"{root_dir}\\project_implementation\\outputs\\invariant"
+segment_length=1
+smooth_by_rounding=1
