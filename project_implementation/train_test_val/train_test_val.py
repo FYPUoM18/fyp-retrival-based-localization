@@ -7,25 +7,24 @@ class tran_test_val:
         self.conf=conf
     
     def generate(self):
-        import h5py
 
-    with h5py.File('example.hdf5', 'r') as f:
-       
-        time = f['synced/time'][:]
+        with h5py.File('example.hdf5', 'r') as f:
+        
+            time = f['synced/time'][:]
 
-        duration = 20.0
+            duration = 20.0
 
-        num_samples = int(duration * 100) # Assumes a 100Hz sampling rate
+            num_samples = int(duration * 100) # Assumes a 100Hz sampling rate
 
-        # Iterate over a fixed number of samples
-        for i in range(10):
-            
-            start_idx = np.random.randint(0, len(time) - num_samples)
+            # Iterate over a fixed number of samples
+            for i in range(10):
+                
+                start_idx = np.random.randint(0, len(time) - num_samples)
 
-            gyro = f['synced/gyro'][start_idx:start_idx+num_samples]
-            acce = f['synced/acce'][start_idx:start_idx+num_samples]
-            game_rv = f['synced/game_rv'][start_idx:start_idx+num_samples]
+                gyro = f['synced/gyro'][start_idx:start_idx+num_samples]
+                acce = f['synced/acce'][start_idx:start_idx+num_samples]
+                game_rv = f['synced/game_rv'][start_idx:start_idx+num_samples]
 
-            file_name = f'output_{start_idx:05d}.txt'
+                file_name = f'output_{start_idx:05d}.txt'
 
-            np.savetxt(file_name, np.c_[gyro, acce, game_rv], delimiter=' ')
+                np.savetxt(file_name, np.c_[gyro, acce, game_rv], delimiter=' ')
