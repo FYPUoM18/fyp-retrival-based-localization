@@ -89,61 +89,65 @@ class DomainConverter:
             datasets = list(os.listdir(os.path.join(self.conf.traj_drawing_out_dir,folder)))
             for dataset in datasets:
 
-                # Get Required Paths
-                csv_path = os.path.join(self.conf.traj_drawing_out_dir,folder,dataset,"full_traj.csv")
-                png_path = os.path.join(self.conf.traj_drawing_out_dir, folder, dataset, "full_traj.png")
-                data_out_dir = os.path.join(self.conf.invariant_domain_output_dir, folder, dataset)
+                try:
 
-                # Create Folders
-                if os.path.exists(data_out_dir):
-                    shutil.rmtree(data_out_dir)
-                os.makedirs(data_out_dir)
+                    # Get Required Paths
+                    csv_path = os.path.join(self.conf.traj_drawing_out_dir,folder,dataset,"full_traj.csv")
+                    png_path = os.path.join(self.conf.traj_drawing_out_dir, folder, dataset, "full_traj.png")
+                    data_out_dir = os.path.join(self.conf.invariant_domain_output_dir, folder, dataset)
 
-                # Copy PNG
-                shutil.copy(png_path,os.path.join(data_out_dir,"full_traj.png"))
+                    # Create Folders
+                    if os.path.exists(data_out_dir):
+                        shutil.rmtree(data_out_dir)
+                    os.makedirs(data_out_dir)
 
-                # Read CSV, Get No Of Segments, Make Time Invariant
-                data = np.genfromtxt(csv_path, delimiter=',')
-                segment_length = self.conf.segment_length
-                num_segments,time_invariant_ronin = self.make_time_invariant_ronin(data, segment_length)
-                time_invariant_ground = self.make_time_invariant_ground(data, num_segments)
-                segments_ids=[id for id in range(num_segments)]
+                    # Copy PNG
+                    shutil.copy(png_path,os.path.join(data_out_dir,"full_traj.png"))
 
-                # Calc Rotation
-                angular_code = self.cal_angular_code(time_invariant_ronin)
+                    # Read CSV, Get No Of Segments, Make Time Invariant
+                    data = np.genfromtxt(csv_path, delimiter=',')
+                    segment_length = self.conf.segment_length
+                    num_segments,time_invariant_ronin = self.make_time_invariant_ronin(data, segment_length)
+                    time_invariant_ground = self.make_time_invariant_ground(data, num_segments)
+                    segments_ids=[id for id in range(num_segments)]
 
-                # Combine All
-                combined=np.column_stack((segments_ids,time_invariant_ronin,time_invariant_ground,angular_code))[1:-1,:]
+                    # Calc Rotation
+                    angular_code = self.cal_angular_code(time_invariant_ronin)
 
-                # Plot and Save Traj
-                x = combined[:, 1]
-                y = combined[:, 2]
-                real_x = combined[:, 3] - combined[0, 3]
-                real_y = combined[:, 4] - combined[0, 4]
-                img_path = os.path.join(data_out_dir,"invariant_traj.png")
-                graph_path=os.path.join(data_out_dir,"graph.png")
+                    # Combine All
+                    combined=np.column_stack((segments_ids,time_invariant_ronin,time_invariant_ground,angular_code))[1:-1,:]
 
-                plt.scatter(x=x, y=y, s=0.01, linewidths=0.01, c="blue", label="RoNIN")
-                plt.scatter(x=real_x, y=real_y, s=0.01, linewidths=0.01, c="red", label="Ground Truth")
-                plt.axis('off')
-                plt.savefig(img_path, dpi=1000)
-                plt.clf()
+                    # Plot and Save Traj
+                    x = combined[:, 1]
+                    y = combined[:, 2]
+                    real_x = combined[:, 3] - combined[0, 3]
+                    real_y = combined[:, 4] - combined[0, 4]
+                    img_path = os.path.join(data_out_dir,"invariant_traj.png")
+                    graph_path=os.path.join(data_out_dir,"graph.png")
 
-                # Plot and Save Graph
-                seg_ids=combined[:,0]
-                angles = combined[:, 5]
-                plt.plot(seg_ids, angles)
-                plt.savefig(graph_path, dpi=1000)
-                plt.clf()
+                    plt.scatter(x=x, y=y, s=0.01, linewidths=0.01, c="blue", label="RoNIN")
+                    plt.scatter(x=real_x, y=real_y, s=0.01, linewidths=0.01, c="red", label="Ground Truth")
+                    plt.axis('off')
+                    plt.savefig(img_path, dpi=1000)
+                    plt.clf()
 
-                print("No Of Segments",num_segments)
-                print("Saved", img_path)
+                    # Plot and Save Graph
+                    seg_ids=combined[:,0]
+                    angles = combined[:, 5]
+                    plt.plot(seg_ids, angles)
+                    plt.savefig(graph_path, dpi=1000)
+                    plt.clf()
 
-                # Save CSV
-                np.savetxt(os.path.join(data_out_dir,"invariant_traj.csv"), combined, delimiter=",", fmt='%.16f', comments='',
-                           header=','.join(["id","i_ronin_x", "i_ronin_y", "i_ground_x", "i_ground_y","angle_to_rotate (RoNIN)"]))
-                print("Saved Invariant Domain For",dataset)
+                    # print("No Of Segments",num_segments)
+                    # print("Saved", img_path)
 
+                    # Save CSV
+                    np.savetxt(os.path.join(data_out_dir,"invariant_traj.csv"), combined, delimiter=",", fmt='%.16f', comments='',
+                               header=','.join(["id","i_ronin_x", "i_ronin_y", "i_ground_x", "i_ground_y","angle_to_rotate (RoNIN)"]))
+                    print("Saved Invariant Domain For",dataset)
+
+                except:
+                    print("Failed !!! :",dataset)
 
 
 
