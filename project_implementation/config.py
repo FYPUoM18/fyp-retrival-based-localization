@@ -34,3 +34,6 @@ traj_drawing_out_dir=f"{root_dir}\\project_implementation\\outputs\\traj_visuali
 invariant_domain_output_dir = f"{root_dir}\\project_implementation\\outputs\\invariant"
 segment_length=0.1
 smooth_by_rounding=1
+
+# Eval
+DTWThreshold_Expected_Real_LOC_Predicted__REAL_LOC_SEQS=100

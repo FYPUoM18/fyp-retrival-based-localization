@@ -81,7 +81,7 @@ class DomainConverter:
         codes.append(np.NaN)
         return np.array(codes)
 
-    def convert_domain(self):
+    def make_time_invariant(self):
 
         folders=list(os.listdir(self.conf.traj_drawing_out_dir))
 
@@ -118,10 +118,10 @@ class DomainConverter:
                     segments_ids=[id for id in range(num_segments)]
 
                     # Calc Rotation
-                    angular_code = self.cal_angular_code(time_invariant_ronin)
+                    #angular_code = self.cal_angular_code(time_invariant_ronin)
 
                     # Combine All
-                    combined=np.column_stack((segments_ids,time_invariant_ronin,time_invariant_ground,angular_code))[1:-1,:]
+                    combined=np.column_stack((segments_ids,time_invariant_ronin,time_invariant_ground))[1:-1,:]
 
                     # Plot and Save Traj
                     x = combined[:, 1]
@@ -138,25 +138,26 @@ class DomainConverter:
                     plt.clf()
 
                     # Plot and Save Graph
-                    seg_ids=combined[:,0]
-                    angles = combined[:, 5]
-                    plt.plot(seg_ids, angles)
-                    plt.savefig(graph_path, dpi=1000)
-                    plt.clf()
+                    # seg_ids=combined[:,0]
+                    # angles = combined[:, 5]
+                    # plt.plot(seg_ids, angles)
+                    # plt.savefig(graph_path, dpi=1000)
+                    # plt.clf()
 
                     # print("No Of Segments",num_segments)
                     # print("Saved", img_path)
 
                     # Save CSV
                     np.savetxt(os.path.join(data_out_dir,"invariant_traj.csv"), combined, delimiter=",", fmt='%.16f', comments='',
-                               header=','.join(["id","i_ronin_x", "i_ronin_y", "i_ground_x", "i_ground_y","angle_to_rotate (RoNIN)"]))
-                    print("Saved Invariant Domain For",dataset)
+                               header=','.join(["id","i_ronin_x", "i_ronin_y", "i_ground_x", "i_ground_y"]))
+                    print("Saved Time Invariant Domain For",dataset)
 
-                except:
+                except Exception as ex:
                     # Remove Folders
                     if os.path.exists(data_out_dir):
                         shutil.rmtree(data_out_dir)
                     print("Failed !!! :",dataset)
+                    print(ex)
 
 
 

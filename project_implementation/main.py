@@ -29,4 +29,4 @@ if __name__ == "__main__":
 
     if 5 in steps:
         domain_convertor=DomainConverter(config)
-        domain_convertor.convert_domain()
+        domain_convertor.make_time_invariant()
