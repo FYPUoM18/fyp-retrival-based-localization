@@ -1,10 +1,12 @@
 import os
 import shutil
-from os import path as osp
-
+import csv
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
+
+from os import path as osp
+
 
 
 class TrajVisualizer:
@@ -27,7 +29,8 @@ class TrajVisualizer:
 
             # Define and Create Directory/Path
             save_path = osp.join(self.conf.traj_drawing_out_dir, hdf5[0], hdf5[1])
-            img_path = osp.join(self.conf.traj_drawing_out_dir, hdf5[0], hdf5[1], "full_traj.png")
+            ground_img_path = osp.join(self.conf.traj_drawing_out_dir, hdf5[0], hdf5[1], "ground_full_traj.png")
+            ronin_img_path = osp.join(self.conf.traj_drawing_out_dir, hdf5[0], hdf5[1], "ronin_full_traj.png")
             csv_path = osp.join(self.conf.traj_drawing_out_dir, hdf5[0], hdf5[1], "full_traj.csv")
 
             if not os.path.exists(save_path):
@@ -44,13 +47,17 @@ class TrajVisualizer:
             real_x = real[:,0] - real[0,0]
             real_y = real[:,1] - real[0,1]
 
-
-            plt.scatter(x=x, y=y, s=0.01, linewidths=0.01, c="blue",label="RoNIN")
-            plt.scatter(x=real_x, y=real_y, s=0.01, linewidths=0.01, c="red",label="Ground Truth")
-            plt.axis('off')
-            plt.savefig(img_path, dpi=1000)
+            plt.scatter(x=x, y=y, s=0.01, linewidths=0.01, c="blue", label="RoNIN")
+            #plt.axis('off')
+            plt.savefig(ronin_img_path, dpi=1000)
             plt.clf()
-            print("Saved", img_path)
+            print("Saved", ronin_img_path)
+
+            plt.scatter(x=real_x, y=real_y, s=0.01, linewidths=0.01, c="red",label="Ground Truth")
+            #plt.axis('off')
+            plt.savefig(ground_img_path, dpi=1000)
+            plt.clf()
+            print("Saved", ground_img_path)
 
             # Create CSV
             if f.get("synced/loc") != None:
@@ -63,11 +70,30 @@ class TrajVisualizer:
 
 
     def drawRoNINTraj(self):
-
         if os.path.exists(self.conf.traj_drawing_out_dir):
             shutil.rmtree(self.conf.traj_drawing_out_dir)
 
         list_of_hdf5s = self.get_all_hdf5_list()
+
+        # Draw DB Traj
+        with open(self.conf.meta_file, "r") as f:
+            reader = csv.reader(f, delimiter=",")
+            for i, (otype1,target,source,start,end) in enumerate(reader):
+                for otype2,file,loc in list_of_hdf5s:
+                    if source.split(".")[0]==file:
+                        with h5py.File(loc, 'r') as f:
+                            ronin = f.get("computed/ronin")[range(int(start),int(end))]
+
+                            savepath = osp.join(self.conf.traj_drawing_out_dir, otype1, target)
+                            if not os.path.exists(savepath):
+                                os.makedirs(savepath)
+
+                            plt.scatter(x=ronin[:,0], y=ronin[:,1], s=0.01, linewidths=0.01, c="blue", label="RoNIN")
+                            #plt.axis('off')
+                            plt.savefig(osp.join(savepath,"traj_in_db.png"), dpi=1000)
+                            plt.clf()
+                            print("Added Traj In DB For :",target,otype2,file)
+
 
         for hdf5 in list_of_hdf5s:
             self.drawTrajAll(hdf5)
