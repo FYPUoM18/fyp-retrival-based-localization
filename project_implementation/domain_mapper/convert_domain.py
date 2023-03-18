@@ -93,7 +93,9 @@ class DomainConverter:
 
                     # Get Required Paths
                     csv_path = os.path.join(self.conf.traj_drawing_out_dir,folder,dataset,"full_traj.csv")
-                    png_path = os.path.join(self.conf.traj_drawing_out_dir, folder, dataset, "full_traj.png")
+                    png_path1 = os.path.join(self.conf.traj_drawing_out_dir, folder, dataset, "ground_full_traj.png")
+                    png_path2 = os.path.join(self.conf.traj_drawing_out_dir, folder, dataset, "ronin_full_traj.png")
+                    png_path3 = os.path.join(self.conf.traj_drawing_out_dir, folder, dataset, "traj_in_db.png")
                     data_out_dir = os.path.join(self.conf.invariant_domain_output_dir, folder, dataset)
 
                     # Create Folders
@@ -102,8 +104,12 @@ class DomainConverter:
                     os.makedirs(data_out_dir)
 
                     # Copy PNG
-                    shutil.copy(png_path,os.path.join(data_out_dir,"full_traj.png"))
-
+                    try:
+                        shutil.copy(png_path1,os.path.join(data_out_dir,"ground_full_traj.png"))
+                        shutil.copy(png_path2, os.path.join(data_out_dir, "ronin_full_traj.png"))
+                        shutil.copy(png_path3, os.path.join(data_out_dir, "traj_in_db.png"))
+                    except:
+                        pass
                     # Read CSV, Get No Of Segments, Make Time Invariant
                     data = np.genfromtxt(csv_path, delimiter=',')
                     segment_length = self.conf.segment_length
@@ -125,9 +131,9 @@ class DomainConverter:
                     img_path = os.path.join(data_out_dir,"invariant_traj.png")
                     graph_path=os.path.join(data_out_dir,"graph.png")
 
-                    plt.scatter(x=x, y=y, s=0.01, linewidths=0.01, c="blue", label="RoNIN")
-                    plt.scatter(x=real_x, y=real_y, s=0.01, linewidths=0.01, c="red", label="Ground Truth")
-                    plt.axis('off')
+                    plt.scatter(x=x, y=y, s=0.1, linewidths=0.1, c="blue", label="RoNIN")
+                    #plt.scatter(x=real_x, y=real_y, s=0.01, linewidths=0.01, c="red", label="Ground Truth")
+                    #plt.axis('off')
                     plt.savefig(img_path, dpi=1000)
                     plt.clf()
 
@@ -147,6 +153,9 @@ class DomainConverter:
                     print("Saved Invariant Domain For",dataset)
 
                 except:
+                    # Remove Folders
+                    if os.path.exists(data_out_dir):
+                        shutil.rmtree(data_out_dir)
                     print("Failed !!! :",dataset)
 
 
