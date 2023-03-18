@@ -20,7 +20,7 @@ preferred_files = {
 no_of_sets_per_hdf5 = [16,2,2] # Train Test Val
 freq=200 # Dpoints Per Sec
 no_of_sec_per_split=30 # No fo seconds considered for a split
-
+meta_file=f"{root_dir}\\project_implementation\\outputs\\train_test_meta.csv"
 
 # Step3: Get RoNIN Trajectory
 csvdatadir = f"{root_dir}\\project_implementation\\outputs\\csv_data"
@@ -32,5 +32,5 @@ traj_drawing_out_dir=f"{root_dir}\\project_implementation\\outputs\\traj_visuali
 
 # Step5 : Make Time & Rotation Invariant
 invariant_domain_output_dir = f"{root_dir}\\project_implementation\\outputs\\invariant"
-segment_length=1
+segment_length=0.1
 smooth_by_rounding=1

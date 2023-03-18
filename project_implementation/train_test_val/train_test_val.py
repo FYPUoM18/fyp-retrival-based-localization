@@ -25,6 +25,9 @@ class TrainTestValSplitter:
 
         no_of_dpoints = self.conf.no_of_sec_per_split * self.conf.freq
 
+        #StoreMetaData
+        meta=[["OType", "Target Folder", "Source Folder", "Source Start Index", "Source End Index"]]      # OType, Target Folder, Source Folder, Source Start Index, Source End Index
+
         # Select a folder
         for key, root_dir in self.conf.hdf5datadir.items():
             data_list = [osp.split(path)[1] for path in os.listdir(root_dir)]
@@ -37,7 +40,8 @@ class TrainTestValSplitter:
 
                     # Select a type
                     for otype in tags:
-                        data_out_dir = osp.join(csv_out_dir, otype, str(uuid.uuid4()))
+                        target_name=str(uuid.uuid4())
+                        data_out_dir = osp.join(csv_out_dir, otype,target_name )
 
                         if os.path.exists(data_out_dir):
                             shutil.rmtree(data_out_dir)
@@ -62,6 +66,11 @@ class TrainTestValSplitter:
                                 np_data = np.c_[time, np_data]
                             else:
                                 continue
+
                             np.savetxt(osp.join(data_out_dir, filename + ".txt"), np_data, delimiter=" ")
 
+                        meta.append([otype, target_name, data, row_indexes[0], row_indexes[-1]])
+
                     print("Train/Test/Val",":",data,"Generated")
+
+        np.savetxt(self.conf.meta_file,np.array(meta),delimiter=",",fmt='%s')
