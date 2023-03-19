@@ -1,124 +1,93 @@
+import csv
 import math
 import os
+import pickle
+from os import path as osp
+from PIL import Image
 import numpy as np
 from matplotlib import pyplot as plt
 from fastdtw import fastdtw
 from scipy.spatial.distance import euclidean
 
+import config
+from DBManager.DBManager import DBManager
+
+train_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\5. imageDB\\train"
+db_meta_csv = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\image_db_meta_file" \
+              ".csv"
+db_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\5. imageDB\\db"
+kdtree_features = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\kdtree_features" \
+                  ".pickle"
+kdtree_tags = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\kdtree_tags.pickle"
+invariant_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\4. invariant"
 
 # DTW
-def getDTW(nplist1,nplist2):
+def fetchRealLocs(image_name_in_db):
+    data_row = None
+    with open(db_meta_csv, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        header = next(reader)
+        column_index = header.index('Image_name')
 
+        for row in reader:
+
+            if row[column_index] == image_name_in_db.split(".")[0]:
+                data_row=row
+                break
+    data_loc = osp.join(invariant_dir,data_row[1],data_row[2],"invariant_traj.csv")
+    start=int(data_row[3])
+    end=int(data_row[4])
+    data = np.genfromtxt(data_loc, delimiter=',')[start+1:end+2,[3,4]]
+    return data
+
+
+def getDTW(nplist1, nplist2):
     distance, path = fastdtw(nplist1, nplist2, dist=euclidean)
-
-    # print the distance
     return distance
 
-# Check Overlapping
-def jaccard_overlapping(seq1, seq2):
-    set1 = set(map(tuple, seq1))
-    set2 = set(map(tuple, seq2))
-    intersection = len(set1 & set2)
-    union = len(set1 | set2)
-    jaccard = intersection / union
-    overlap_percentage = jaccard * 100
-    return overlap_percentage
-
-# Convert To Polar Coordinates
-def toPolar(coordinates_list_2d):
-    x0, y0 = coordinates_list_2d[0]  # get the x, y coordinates of the first point
-    r_theta = []
-    for x, y in coordinates_list_2d:
-        dx = x - x0
-        dy = y - y0
-        r = np.sqrt(dx**2 + dy**2)
-        theta = np.arctan2(dy, dx)
-        r_theta.append(r)
-        r_theta.append(theta)
-    return np.array(r_theta)
 
 
-new_seq_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\invariant\\train"
-db_directory = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\invariant\\db"
+# Loading KDTree
+tree = None
+tags = None
+with open(kdtree_features, "rb") as f:
+    tree = pickle.load(f)
+    print("Loaded KDTree")
+with open(kdtree_tags, "rb") as f:
+    tags = pickle.load(f)
+    print("Loaded Tags")
 
-# Loading DB
-db = {}
-for dataset in os.listdir(db_directory):
-    csv_path = os.path.join(db_directory, dataset, "invariant_traj.csv")
-    db[dataset] = np.genfromtxt(csv_path, delimiter=',')[1:, :]
-print("DB Loaded\n==========\n")
+count = 0
+passed = 0
+dbmanager = DBManager(config)
+image_files=os.listdir(train_dir)
+for image_file in image_files:
+    count += 1
 
+    image_name = image_file
+    image_loc = osp.join(train_dir, image_file)
+    pil_img = Image.open(image_loc)
 
-ispassed=[]
-count=0
-for dataset in os.listdir(new_seq_dir):
-    count+=1
-    # Load New Sequence
+    feature = dbmanager.extract_features(pil_img)
+    dist, ind = tree.query(feature, k=10)
 
-    print("==========================\nDataSet :",dataset)
-    print("Count :",count)
-    new_csv_path = os.path.join(new_seq_dir,dataset, "invariant_traj.csv")
-    new_seq = np.genfromtxt(new_csv_path, delimiter=',')[1:, :]
-    polar_r_new_seq = toPolar(new_seq[:, [1, 2]])
-    print("New Seq Loaded")
+    best_image_name = tags[ind[0]]
+    best_img_loc = osp.join(db_dir, best_image_name)
+    pil_img_best_match = Image.open(best_img_loc)
 
-    # Window Size
-    window_size = len(new_seq)
-    step_size = 1
-    print("Window Size", window_size)
-    print("Step Size", step_size)
+    #pil_img.show()
+    #pil_img_best_match.show()
 
-    # Track Sliding
-    current_best_dataset = None
-    current_best_window = None
-    current_best_dist = math.inf
+    expected_real_loc = fetchRealLocs(image_name)
+    predicted_real_loc = fetchRealLocs(best_image_name)
 
-    # Start Sliding
-    for key, val in db.items():
+    dtw=getDTW(expected_real_loc,predicted_real_loc)
+    if dtw<=100:
+        passed+=1
 
-        # Building Sliding Window Parameter
-        max_index = len(val) - 1
-        current_start_index = 0
-        current_end_index = current_start_index + window_size - 1
+    print("Processed : {} / {}, Current Acc : {} %".format(count,len(image_files),passed*100/count))
 
-        while current_end_index <= max_index:
-
-            # Get A Sliding Window
-            window = val[current_start_index:current_end_index + 1, :]
-            current_start_index += 1
-            current_end_index += 1
-
-            # Calc Polar Values
-            polar_r_windows = toPolar(window[:, [1, 2]])
-
-
-            # Cal Similarity
-            dist = np.sqrt(np.sum((polar_r_new_seq - polar_r_windows) ** 2))
-            if dist < current_best_dist:
-                current_best_dist = dist
-                current_best_window = window
-                current_best_dataset = key
-
-    gtw=getDTW(current_best_window[:, [3, 4]],new_seq[:, [3, 4]])
-    if gtw<=100:
-        ispassed.append(1)
-    else:
-        ispassed.append(0)
-
-    print("Best Dist :", current_best_dist)
-    print("Best Dataset :", current_best_dataset)
-    print("Best Location :", current_best_window[0, [3, 4]])
-    print("Expected Location :", new_seq[0, [3, 4]])
-    print("DTW Distance:",gtw)
-    print("Is Passed :",ispassed[-1])
-    print("==========================\n\n")
-
-    #
-    # plt.scatter(x=current_best_window[:,1]-current_best_window[0,1], y=current_best_window[:,2]-current_best_window[0,2], s=1, linewidths=0.1, c="blue", label="Best Matching")
-    # plt.scatter(x=new_seq[:,1], y=new_seq[:,2], s=1, linewidths=0.1, c="red", label="Input")
-    # #plt.axis('off')
-    # plt.show()
-
-print(ispassed)
-print("Total :",len(ispassed))
-print("Train Accuracy :",len([i for i in ispassed if i==1])/len(ispassed))
+print()
+print("total :",count)
+print("passed :",passed)
+print("acc :",passed*100/count,"%")
