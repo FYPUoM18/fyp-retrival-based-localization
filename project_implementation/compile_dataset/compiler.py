@@ -330,7 +330,7 @@ class Compiler:
 
     def compile(self):
 
-        csv_dir = self.conf.csvdatadir
+        csv_dir = self.conf.csv_out_dir
         folder_list = [osp.split(path)[1] for path in os.listdir(csv_dir)]
 
         for folder in folder_list:

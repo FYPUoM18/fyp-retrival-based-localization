@@ -73,4 +73,4 @@ class TrainTestValSplitter:
 
                     print("Train/Test/Val",":",data,"Generated")
 
-        np.savetxt(self.conf.meta_file,np.array(meta),delimiter=",",fmt='%s')
+        np.savetxt(self.conf.train_test_val_meta_file,np.array(meta),delimiter=",",fmt='%s')
