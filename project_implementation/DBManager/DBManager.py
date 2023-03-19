@@ -1,15 +1,23 @@
 import os
+import pickle
 import uuid
-from os import path as osp
-
 import numpy as np
+from multiprocessing import Pool
+import torch
+import torchvision.models as models
+import torchvision.transforms as transforms
+
+from os import path as osp
+from PIL import Image
 from matplotlib import pyplot as plt
+from scipy.spatial import KDTree
 
 
 class DBManager:
 
     def __init__(self, conf):
         self.conf = conf
+        self.vgg16 = models.vgg16(pretrained=True)
 
     def generateImageDB(self):
 
@@ -73,17 +81,58 @@ class DBManager:
                     plt.savefig(image_loc, dpi=40)
                     plt.clf()
 
-
-        print("No of failures :",len(fail_list))
-        np.savetxt(self.conf.image_db_meta_file,csv_data,delimiter=",",fmt='%s')
+        print("No of failures :", len(fail_list))
+        np.savetxt(self.conf.image_db_meta_file, csv_data, delimiter=",", fmt='%s')
         print("Save DB Info")
 
-    def buildKDTree(self):
-        # Loop Only Images IN DB Use Config to More psecific
-        # Extract feature using VGG16
-        # Save Features In KDTree
-        # Save Image Names In A List
-        # Save List
-        # Save KDTree
+    def extract_features(self,img):
 
-        pass
+        img = img.convert("RGB")
+        transform = transforms.Compose([
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
+        ])
+        img = transform(img)
+        img = img.unsqueeze(0)
+        features = self.vgg16.features(img)
+        features = features.detach().numpy()
+        features = np.ravel(features)
+        return features
+
+    # Define function to extract features from a list of images using multiple processes
+    def extract_features_all(self, images):
+        total=len(images)
+        count=0
+        feature_list=[]
+        for img in images:
+            feature_list.append(self.extract_features(img))
+            count+=1
+            if count%10==0:
+                print("Completed {} / {}".format(count,total))
+        features_array = np.array(feature_list)
+        return features_array
+
+    def buildKDTree(self):
+
+        tags = []
+        images = []
+
+        print("Loading Images . . .")
+        for image in os.listdir(self.conf.image_db_loc_kdtree):
+            image_loc = osp.join(self.conf.image_db_loc_kdtree, image)
+            pil_img = Image.open(image_loc)
+            images.append(pil_img)
+            tags.append(image)
+        print("Extracting Features")
+        features = self.extract_features_all(images)
+        print("Feature Shape :",features.shape)
+        print("Extracted Features")
+
+        tree=KDTree(features)
+        with open(self.conf.kdtree_features_loc, "wb") as f:
+            pickle.dump(tree, f)
+        with open(self.conf.kdtree_tags_loc, "wb") as f:
+            pickle.dump(tags, f)

@@ -33,5 +33,6 @@ if __name__ == "__main__":
         generate_imagedb = DBManager(config)
         generate_imagedb.generateImageDB()
 
-    if 7 in steps
+    if 7 in steps:
+        generate_imagedb = DBManager(config)
         generate_imagedb.buildKDTree()

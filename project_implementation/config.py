@@ -1,5 +1,5 @@
 # Steps
-steps = [6]
+steps = [7]
 
 # Root Dir
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code"
@@ -39,7 +39,10 @@ image_db_meta_file = f"{root_dir}\\project_implementation\\outputs\\image_db_met
 window_size = 120  # Same Length Curve For All Images : Length = 120 x 0.1 = 12
 step_size = 20
 
-
+# Step7 : Build KDTree
+image_db_loc_kdtree = f"{root_dir}\\project_implementation\\outputs\\5. imageDB\\db"
+kdtree_features_loc = f"{root_dir}\\project_implementation\\outputs\\kdtree_features.pickle"
+kdtree_tags_loc = f"{root_dir}\\project_implementation\\outputs\\kdtree_tags.pickle"
 
 # Eval
 DTWThreshold_Expected_Real_LOC_Predicted__REAL_LOC_SEQS = 100
