@@ -15,12 +15,16 @@ class CSV_Generator:
     def generate(self):
         np.set_printoptions(suppress=True)
 
-        for key, root_dir in self.conf.hdf5datadir.items():
-            data_list=[osp.split(path)[1] for path in os.listdir(root_dir)]
+        for key, meta in self.conf.hdf5datadir.items():
+
+            if not meta["indb"]:
+                continue
+
+            data_list=[osp.split(path)[1] for path in os.listdir(meta["loc"])]
             csv_out_dir=self.conf.csv_out_dir
 
             for data in data_list:
-                data_path=osp.join(root_dir,data)
+                data_path=osp.join(meta["loc"],data)
                 data_out_dir = osp.join(csv_out_dir,key,str(data).split(".")[0])
 
                 if os.path.exists(data_out_dir):

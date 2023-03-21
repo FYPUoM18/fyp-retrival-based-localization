@@ -1,12 +1,37 @@
 # Steps
-steps = []
+steps = [7]
 
 # Root Dir
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code"
 
 # Step1: Generate CSV From HDF5
 hdf5datadir = {
-    "db": f"{root_dir}\\nilocdata-subset\\unib",
+    "db": {
+        "loc": f"{root_dir}\\nilocdata-subset\\unib\\seen",
+        "isseen": True,
+        "countperset": -1,
+        "indb": True
+    },
+    "train": {
+        "loc": f"{root_dir}\\nilocdata-subset\\unib\\seen",
+        "isseen": True,
+        "countperset": 16,
+        "indb": False
+    },
+    "test": {
+        "loc": f"{root_dir}\\nilocdata-subset\\unib\\unseen",
+        "isseen": False,
+        "countperset": 2,
+        "indb": False
+    },
+    "val": {
+        "loc": f"{root_dir}\\nilocdata-subset\\unib\\unseen",
+        "isseen": False,
+        "countperset": 2,
+        "indb": False
+
+    }
+
 }
 csv_out_dir = f"{root_dir}\\project_implementation\\outputs\\1. csv_data"
 preferred_files = {
@@ -17,7 +42,6 @@ preferred_files = {
 }
 
 # Step2: Generate Train/Test/Val From HDF5
-no_of_sets_per_hdf5 = [16, 2, 2]  # Train Test Val
 freq = 200  # Dpoints Per Sec
 no_of_sec_per_split = 30  # No fo seconds considered for a split
 train_test_val_meta_file = f"{root_dir}\\project_implementation\\outputs\\train_test_val_meta.csv"

@@ -12,7 +12,7 @@ from scipy.spatial.distance import euclidean
 import config
 from DBManager.DBManager import DBManager
 
-train_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\5. imageDB\\train"
+to_eval_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\5. imageDB\\val"
 db_meta_csv = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\image_db_meta_file" \
               ".csv"
 db_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\5. imageDB\\db"
@@ -60,12 +60,12 @@ with open(kdtree_tags, "rb") as f:
 count = 0
 passed = 0
 dbmanager = DBManager(config)
-image_files=os.listdir(train_dir)
+image_files=os.listdir(to_eval_dir)
 for image_file in image_files:
     count += 1
 
     image_name = image_file
-    image_loc = osp.join(train_dir, image_file)
+    image_loc = osp.join(to_eval_dir, image_file)
     pil_img = Image.open(image_loc)
 
     feature = dbmanager.extract_features(pil_img)
@@ -75,8 +75,8 @@ for image_file in image_files:
     best_img_loc = osp.join(db_dir, best_image_name)
     pil_img_best_match = Image.open(best_img_loc)
 
-    #pil_img.show()
-    #pil_img_best_match.show()
+    pil_img.show()
+    pil_img_best_match.show()
 
     expected_real_loc = fetchRealLocs(image_name)
     predicted_real_loc = fetchRealLocs(best_image_name)

@@ -76,7 +76,7 @@ class TrajVisualizer:
         list_of_hdf5s = self.get_all_hdf5_list()
 
         # Draw DB Traj
-        with open(self.conf.meta_file, "r") as f:
+        with open(self.conf.train_test_val_meta_file, "r") as f:
             reader = csv.reader(f, delimiter=",")
             for i, (otype1,target,source,start,end) in enumerate(reader):
                 for otype2,file,loc in list_of_hdf5s:

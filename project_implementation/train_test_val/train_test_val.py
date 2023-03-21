@@ -14,32 +14,27 @@ class TrainTestValSplitter:
     
     def split(self):
 
-        tags=[]
-        train_tags=["train"]*self.conf.no_of_sets_per_hdf5[0]
-        test_tags = ["test"] * self.conf.no_of_sets_per_hdf5[1]
-        val_tags = ["val"] * self.conf.no_of_sets_per_hdf5[2]
-
-        tags.extend(train_tags)
-        tags.extend(test_tags)
-        tags.extend(val_tags)
-
         no_of_dpoints = self.conf.no_of_sec_per_split * self.conf.freq
 
         #StoreMetaData
-        meta=[["OType", "Target Folder", "Source Folder", "Source Start Index", "Source End Index"]]      # OType, Target Folder, Source Folder, Source Start Index, Source End Index
+        csvmeta=[["OType", "Target Folder", "Source Folder", "Source Start Index", "Source End Index"]]      # OType, Target Folder, Source Folder, Source Start Index, Source End Index
 
         # Select a folder
-        for key, root_dir in self.conf.hdf5datadir.items():
-            data_list = [osp.split(path)[1] for path in os.listdir(root_dir)]
+        for key, meta in self.conf.hdf5datadir.items():
+
+            if meta["indb"]:
+                continue
+
+            data_list = [osp.split(path)[1] for path in os.listdir(meta["loc"])]
             csv_out_dir = self.conf.csv_out_dir
 
             # Select a file
             for data in data_list:
-                data_path = osp.join(root_dir, data)
+                data_path = osp.join(meta["loc"], data)
                 with h5py.File(data_path, 'r') as f:
 
                     # Select a type
-                    for otype in tags:
+                    for otype in [key]*meta["countperset"]:
                         target_name=str(uuid.uuid4())
                         data_out_dir = osp.join(csv_out_dir, otype,target_name )
 
@@ -69,8 +64,8 @@ class TrainTestValSplitter:
 
                             np.savetxt(osp.join(data_out_dir, filename + ".txt"), np_data, delimiter=" ")
 
-                        meta.append([otype, target_name, data, row_indexes[0], row_indexes[-1]])
+                        csvmeta.append([otype, target_name, data, row_indexes[0], row_indexes[-1]])
 
-                    print("Train/Test/Val",":",data,"Generated")
+                    print(key,":",data,"Generated")
 
-        np.savetxt(self.conf.train_test_val_meta_file,np.array(meta),delimiter=",",fmt='%s')
+        np.savetxt(self.conf.train_test_val_meta_file,np.array(csvmeta),delimiter=",",fmt='%s')
