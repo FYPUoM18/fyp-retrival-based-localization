@@ -8,3 +8,4 @@ tensorboardx
 torch
 torchvision
 utm
+fastdtw
