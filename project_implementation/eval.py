@@ -80,7 +80,7 @@ for image_file in image_files:
         best_img_loc = osp.join(db_dir, best_image_name)
         pil_img_best_match = Image.open(best_img_loc)
 
-        #pil_img.show()
+        ##pil_img.show()
         #pil_img_best_match.show()
 
         expected_real_loc = fetchRealLocs(image_name)
