@@ -202,11 +202,11 @@ class Compiler:
         """
         Compile unannotated(or imu_only) sequence directly from raw files.
         """
-        source_vector = {'gyro', 'acce'}
+        source_vector = {'gyro', 'acce','ronin'}
         source_quaternion = {'game_rv'}
         fail_list = []
         divider = 1000000000 if isnano else 1
-        _raw_data_sources = ['gyro', 'acce', 'game_rv']
+        _raw_data_sources = ['gyro', 'acce', 'game_rv','ronin']
         _optional_data_sources = []
         if is_loc_available:
             source_vector.add('loc')
@@ -296,9 +296,8 @@ class Compiler:
                     f.create_group('synced')
                     f.create_dataset('synced/time', data=output_time)
                     for source in source_all:
-                        if source == 'gravity':
-                            f.create_dataset(
-                                'synced/' + source, data=processed_sources['gravity'])
+                        if source == 'ronin':
+                            continue
                         else:
                             f.create_dataset(
                                 'synced/' + source, data=processed_sources[source])
@@ -315,11 +314,11 @@ class Compiler:
                                      data=processed_sources['tango_ori'])
 
                 print('Calculate ronin trajectory')
-                ronin_traj = self.get_ronin_resnet_traj(
-                    out_path, ronin_checkpoint)
+                # ronin_traj = self.get_ronin_resnet_traj(
+                #     out_path, ronin_checkpoint)
                 with h5py.File(osp.join(out_path, 'data.hdf5'), 'a') as f:
                     f.create_group('computed')
-                    f.create_dataset('computed/ronin', data=ronin_traj)
+                    f.create_dataset('computed/ronin', data=processed_sources["ronin"])
 
             except (OSError, FileNotFoundError, TypeError) as e:
                 print(e)

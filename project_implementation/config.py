@@ -1,5 +1,5 @@
 # Steps
-steps = []
+steps = [1,2,3,4,5,6,7]
 
 # Root Dir
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code"
@@ -38,12 +38,13 @@ preferred_files = {
     'loc': 'computed/aligned_pos',
     'gyro': "synced/gyro",
     'acce': "synced/acce",
-    'game_rv': "synced/game_rv"
+    'game_rv': "synced/game_rv",
+    'ronin': "computed/ronin"
 }
 
 # Step2: Generate Train/Test/Val From HDF5
 freq = 200  # Dpoints Per Sec
-no_of_sec_per_split = 30  # No fo seconds considered for a split
+no_of_sec_per_split = 45  # No fo seconds considered for a split
 train_test_val_meta_file = f"{root_dir}\\project_implementation\\outputs\\train_test_val_meta.csv"
 
 # Step3: Get RoNIN Trajectory
@@ -60,8 +61,8 @@ segment_length = 0.1
 # Step6 : Image DB Generate
 image_db_loc = f"{root_dir}\\project_implementation\\outputs\\5. imageDB"
 image_db_meta_file = f"{root_dir}\\project_implementation\\outputs\\image_db_meta_file.csv"
-window_size = 120  # Same Length Curve For All Images : Length = 120 x 0.1 = 12
-step_size = 20
+window_size = 220  # Same Length Curve For All Images : Length = 120 x 0.1 = 12
+step_size = 50
 
 # Step7 : Build KDTree
 image_db_loc_kdtree = f"{root_dir}\\project_implementation\\outputs\\5. imageDB\\db"

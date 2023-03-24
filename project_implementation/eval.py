@@ -74,7 +74,7 @@ for image_file in image_files:
     pil_img = Image.open(image_loc)
 
     feature = dbmanager.extract_features(pil_img)
-    dist, ind = tree.query(feature,k=50)
+    dist, ind = tree.query(feature,k=100)
     for i in range(len(ind)):
         best_image_name = tags[ind[i]]
         best_img_loc = osp.join(db_dir, best_image_name)
@@ -90,7 +90,7 @@ for image_file in image_files:
         #print(expected_real_loc[-1])
 
         dtw=getDTW(expected_real_loc,predicted_real_loc)
-        if dtw<=500:
+        if dtw<=400:
             ccount+=1
             ck+=i
             cdtw+=dtw
