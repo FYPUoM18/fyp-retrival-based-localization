@@ -118,17 +118,21 @@ class DBManager:
     def buildKDTree(self):
 
         tags = []
-        images = []
-
+        #images=[]
+        features = []
+        i=0
         print("Loading Images . . .")
         for image in os.listdir(self.conf.image_db_loc_kdtree):
+            i=i+1
             image_loc = osp.join(self.conf.image_db_loc_kdtree, image)
             pil_img = Image.open(image_loc)
-            images.append(pil_img)
+            #images.append(pil_img)
+            feature = self.extract_features_all([pil_img])[0]
+            if i%100==0:
+                print("Feature Shape :",i,",", feature.shape)
+            features.append(feature)
             tags.append(image)
-        print("Extracting Features")
-        features = self.extract_features_all(images)
-        print("Feature Shape :",features.shape)
+            pil_img.close()
         print("Extracted Features")
 
         tree=KDTree(features)
