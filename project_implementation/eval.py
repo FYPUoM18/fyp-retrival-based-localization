@@ -2,6 +2,7 @@ import csv
 import math
 import os
 import pickle
+import random
 from os import path as osp
 from PIL import Image
 import numpy as np
@@ -12,7 +13,7 @@ from scipy.spatial.distance import euclidean
 import config
 from DBManager.DBManager import DBManager
 
-to_eval_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\5. imageDB\\val"
+to_eval_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\5. imageDB\\test"
 db_meta_csv = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\image_db_meta_file" \
               ".csv"
 db_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\5. imageDB\\db"
@@ -46,7 +47,7 @@ def getDTW(nplist1, nplist2):
     return distance
 
 
-
+print("Started")
 # Loading KDTree
 tree = None
 tags = None
@@ -59,8 +60,12 @@ with open(kdtree_tags, "rb") as f:
 
 count = 0
 passed = 0
+ccount=0
+cdtw=0
+ck=0
 dbmanager = DBManager(config)
 image_files=os.listdir(to_eval_dir)
+random.shuffle(image_files)
 for image_file in image_files:
     count += 1
 
@@ -69,25 +74,37 @@ for image_file in image_files:
     pil_img = Image.open(image_loc)
 
     feature = dbmanager.extract_features(pil_img)
-    dist, ind = tree.query(feature, k=10)
+    dist, ind = tree.query(feature,k=50)
+    for i in range(len(ind)):
+        best_image_name = tags[ind[i]]
+        best_img_loc = osp.join(db_dir, best_image_name)
+        pil_img_best_match = Image.open(best_img_loc)
 
-    best_image_name = tags[ind[0]]
-    best_img_loc = osp.join(db_dir, best_image_name)
-    pil_img_best_match = Image.open(best_img_loc)
+        #pil_img.show()
+        #pil_img_best_match.show()
 
-    pil_img.show()
-    pil_img_best_match.show()
+        expected_real_loc = fetchRealLocs(image_name)
+        predicted_real_loc = fetchRealLocs(best_image_name)
 
-    expected_real_loc = fetchRealLocs(image_name)
-    predicted_real_loc = fetchRealLocs(best_image_name)
+        #print(expected_real_loc[0])
+        #print(expected_real_loc[-1])
 
-    dtw=getDTW(expected_real_loc,predicted_real_loc)
-    if dtw<=100:
-        passed+=1
+        dtw=getDTW(expected_real_loc,predicted_real_loc)
+        if dtw<=500:
+            ccount+=1
+            ck+=i
+            cdtw+=dtw
+            print("K:",i)
+            print("DTW",dtw)
+            passed+=1
+            break
+
 
     print("Processed : {} / {}, Current Acc : {} %".format(count,len(image_files),passed*100/count))
 
 print()
+print("Avg DTW:",cdtw/ccount)
+print("Avg K:",ck/ccount)
 print("total :",count)
 print("passed :",passed)
 print("acc :",passed*100/count,"%")
