@@ -74,8 +74,7 @@ for image_file in image_files:
     pil_img = Image.open(image_loc)
 
     feature = dbmanager.extract_features(pil_img)
-    ind = tree.query_ball_point(feature,50)
-
+    dist, ind = tree.query(feature,k=100)
     for i in range(len(ind)):
         best_image_name = tags[ind[i]]
         best_img_loc = osp.join(db_dir, best_image_name)
@@ -95,7 +94,6 @@ for image_file in image_files:
             ccount+=1
             ck+=i
             cdtw+=dtw
-            print("No of Points:",len(ind))
             print("K:",i)
             print("DTW",dtw)
             passed+=1
