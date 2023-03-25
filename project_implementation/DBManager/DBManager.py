@@ -17,7 +17,8 @@ class DBManager:
 
     def __init__(self, conf):
         self.conf = conf
-        self.vgg16 = models.vgg16(pretrained=True)
+        self.model = models.resnet50(pretrained=True)
+        self.model.eval()
 
     def generateImageDB(self):
 
@@ -97,7 +98,8 @@ class DBManager:
         ])
         img = transform(img)
         img = img.unsqueeze(0)
-        features = self.vgg16.features(img)
+        with torch.no_grad():
+            features = self.model(img)
         features = features.detach().numpy()
         features = np.ravel(features)
         return features

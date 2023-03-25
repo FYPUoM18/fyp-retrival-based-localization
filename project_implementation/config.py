@@ -1,5 +1,5 @@
 # Steps
-steps = [1,2,3,4,5,6,7]
+steps = [7]
 
 # Root Dir
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code"
