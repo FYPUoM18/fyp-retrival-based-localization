@@ -93,7 +93,7 @@ for image_file in image_files:
         #print(expected_real_loc[-1])
 
         dtw=getDTW(expected_real_loc,predicted_real_loc)
-        if dtw<=400:
+        if dtw <= 400:
             ccount+=1
             ck+=i
             cdtw+=dtw
