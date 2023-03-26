@@ -61,7 +61,7 @@ segment_length = 0.1
 # Step6 : Image DB Generate
 image_db_loc = f"{root_dir}\\project_implementation\\outputs\\5. imageDB"
 image_db_meta_file = f"{root_dir}\\project_implementation\\outputs\\image_db_meta_file.csv"
-window_size = 220  # Same Length Curve For All Images : Length = 120 x 0.1 = 12
+window_size = 220  # Same Length Curve For All Images : Length = 220 x 0.1 = 22
 step_size = 50
 
 # Step7 : Build KDTree

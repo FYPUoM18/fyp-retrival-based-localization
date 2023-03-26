@@ -90,7 +90,7 @@ for image_file in image_files:
         #print(expected_real_loc[-1])
 
         dtw=getDTW(expected_real_loc,predicted_real_loc)
-        if dtw<=200:
+        if dtw<=400:
             # plt.scatter(x=expected_real_loc[:, 0], y=expected_real_loc[:, 1],  c="blue", label="Pred")
             # plt.scatter(x=predicted_real_loc[:, 0], y=predicted_real_loc[:, 1], c="red",
             #             label="Real")
