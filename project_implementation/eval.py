@@ -82,7 +82,7 @@ with open(kdtree_tags, "rb") as f:
 count = 0
 passed = 0
 ccount=0
-cdtw=0
+ctraj_dist=0
 ck=0
 dbmanager = DBManager(config)
 image_files=os.listdir(to_eval_dir)
@@ -95,7 +95,7 @@ for image_file in image_files:
     pil_img = Image.open(image_loc)
 
     feature = dbmanager.extract_features(pil_img)
-    dist, ind = tree.query(feature,k=100)
+    img_dist, ind = tree.query(feature,k=100)
     for i in range(len(ind)):
         best_image_name = tags[ind[i]]
         best_img_loc = osp.join(db_dir, best_image_name)
@@ -110,18 +110,29 @@ for image_file in image_files:
         #print(expected_real_loc[0])
         #print(expected_real_loc[-1])
 
-        dtw=getDTW(expected_real_loc,predicted_real_loc)
-        if dtw<=400:
-            # plt.scatter(x=expected_real_loc[:, 0], y=expected_real_loc[:, 1],  c="blue", label="Pred")
-            # plt.scatter(x=predicted_real_loc[:, 0], y=predicted_real_loc[:, 1], c="red",
+        traj_dist=frechet_distance(expected_real_loc,predicted_real_loc)
+        if traj_dist<=10:
+            # fig, ax = plt.subplots(figsize=(5, 5))
+            #
+            # ax.scatter(x=expected_real_loc[:, 0], y=expected_real_loc[:, 1],  c="blue", label="Pred")
+            # ax.scatter(x=predicted_real_loc[:, 0], y=predicted_real_loc[:, 1], c="red",
             #             label="Real")
+            # ax.set_xlim(0, 200)
+            # ax.set_ylim(0, 200)
+            # text = "DTW : " + str(traj_dist)
+            # x_lim = plt.gca().get_xlim()
+            # y_lim = plt.gca().get_ylim()
+            # x_text = (x_lim[1] - x_lim[0]) / 2 + x_lim[0]
+            # y_text = y_lim[1] - (y_lim[1] - y_lim[0]) * 0.05
+            # plt.text(x_text, y_text, text, ha='center', va='top', fontsize=12)
+            # plt.legend()
             # plt.show()
             # plt.clf()
             ccount+=1
             ck+=i
-            cdtw+=dtw
+            ctraj_dist+=traj_dist
             print("K:",i)
-            print("DTW",dtw)
+            print("Traj Dist",traj_dist)
             passed+=1
             break
 
@@ -129,7 +140,7 @@ for image_file in image_files:
     print("Processed : {} / {}, Current Acc : {} %".format(count,len(image_files),passed*100/count))
 
 print()
-print("Avg DTW:",cdtw/ccount)
+print("Avg Traj Dist:",ctraj_dist/ccount)
 print("Avg K:",ck/ccount)
 print("total :",count)
 print("passed :",passed)
