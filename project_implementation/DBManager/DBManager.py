@@ -17,7 +17,7 @@ class DBManager:
 
     def __init__(self, conf):
         self.conf = conf
-        self.model = models.resnet50(pretrained=True)
+        self.model = models.inception_v3(pretrained=True)
         self.model.eval()
 
     def generateImageDB(self):
@@ -90,8 +90,8 @@ class DBManager:
 
         img = img.convert("RGB")
         transform = transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
+            transforms.Resize(299),
+            transforms.CenterCrop(299),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
