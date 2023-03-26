@@ -111,15 +111,15 @@ for image_file in image_files:
         #print(expected_real_loc[-1])
 
         traj_dist=frechet_distance(expected_real_loc,predicted_real_loc)
-        if traj_dist<=10:
+        if traj_dist<=8 :
             # fig, ax = plt.subplots(figsize=(5, 5))
             #
-            # ax.scatter(x=expected_real_loc[:, 0], y=expected_real_loc[:, 1],  c="blue", label="Pred")
-            # ax.scatter(x=predicted_real_loc[:, 0], y=predicted_real_loc[:, 1], c="red",
+            # ax.scatter(x=expected_real_loc[:, 0], y=expected_real_loc[:, 1],s=0.1,  c="blue", label="Pred")
+            # ax.scatter(x=predicted_real_loc[:, 0], y=predicted_real_loc[:, 1],s=0.1, c="red",
             #             label="Real")
             # ax.set_xlim(0, 200)
             # ax.set_ylim(0, 200)
-            # text = "DTW : " + str(traj_dist)
+            # text = "Traj Disrance (Frechet) : " + str(traj_dist)
             # x_lim = plt.gca().get_xlim()
             # y_lim = plt.gca().get_ylim()
             # x_text = (x_lim[1] - x_lim[0]) / 2 + x_lim[0]
