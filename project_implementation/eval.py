@@ -13,14 +13,17 @@ from scipy.spatial.distance import euclidean
 import config
 from DBManager.DBManager import DBManager
 
-to_eval_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\5. imageDB\\test"
-db_meta_csv = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\image_db_meta_file" \
+# Root Dir
+root_dir = "C:\\Users\\ASUS\\Documents\\fyp-retrival-based-localization"
+
+to_eval_dir = f"{root_dir}\\project_implementation\\outputs\\5. imageDB\\test"
+db_meta_csv = f"{root_dir}\\project_implementation\\outputs\\image_db_meta_file" \
               ".csv"
-db_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\5. imageDB\\db"
-kdtree_features = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\kdtree_features" \
+db_dir = f"{root_dir}\\project_implementation\\outputs\\5. imageDB\\db"
+kdtree_features = f"{root_dir}\\project_implementation\\outputs\\kdtree_features" \
                   ".pickle"
-kdtree_tags = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\kdtree_tags.pickle"
-invariant_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\4. invariant"
+kdtree_tags = f"{root_dir}\\project_implementation\\outputs\\kdtree_tags.pickle"
+invariant_dir = f"{root_dir}\\project_implementation\\outputs\\4. invariant"
 
 # DTW
 def fetchRealLocs(image_name_in_db):
@@ -90,7 +93,7 @@ for image_file in image_files:
         #print(expected_real_loc[-1])
 
         dtw=getDTW(expected_real_loc,predicted_real_loc)
-        if dtw<=500:
+        if dtw<=400:
             ccount+=1
             ck+=i
             cdtw+=dtw
