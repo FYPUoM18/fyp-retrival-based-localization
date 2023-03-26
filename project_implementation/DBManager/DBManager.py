@@ -6,6 +6,7 @@ from multiprocessing import Pool
 import torch
 import torchvision.models as models
 import torchvision.transforms as transforms
+from resnet.resnet import resent_model
 
 from os import path as osp
 from PIL import Image
@@ -97,7 +98,8 @@ class DBManager:
         ])
         img = transform(img)
         img = img.unsqueeze(0)
-        features = self.vgg16.features(img)
+        features = resent_model.model(img)
+        #features = self.vgg16.features(img)
         features = features.detach().numpy()
         features = np.ravel(features)
         return features
