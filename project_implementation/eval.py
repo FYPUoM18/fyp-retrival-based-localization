@@ -9,6 +9,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from fastdtw import fastdtw
 from scipy.spatial.distance import euclidean
+from scipy.spatial.distance import cdist
 
 import config
 from DBManager.DBManager import DBManager
@@ -41,6 +42,26 @@ def fetchRealLocs(image_name_in_db):
     data = np.genfromtxt(data_loc, delimiter=',')[start+1:end+2,[3,4]]
     return data
 
+
+def frechet_distance(P, Q):
+    """
+    Compute the Fréchet distance between two trajectories P and Q.
+    """
+    n = len(P)
+    m = len(Q)
+    if n != m:
+        raise ValueError("Trajectories must have the same length")
+    D = cdist(P, Q)
+    L = np.zeros((n, m))
+    L[0, 0] = D[0, 0]
+    for i in range(1, n):
+        L[i, 0] = max(L[i-1, 0], D[i, 0])
+    for j in range(1, m):
+        L[0, j] = max(L[0, j-1], D[0, j])
+    for i in range(1, n):
+        for j in range(1, m):
+            L[i, j] = max(min(L[i-1, j], L[i-1, j-1], L[i, j-1]), D[i, j])
+    return L[n-1, m-1]
 
 def getDTW(nplist1, nplist2):
     distance, path = fastdtw(nplist1, nplist2, dist=euclidean)
