@@ -123,7 +123,7 @@ for image_file in image_files:
         #print(expected_real_loc[-1])
 
         traj_dist=frechet_distance(expected_real_loc,predicted_real_loc)
-        if traj_dist<=10 :
+        if traj_dist<=6 :
             # fig, ax = plt.subplots(figsize=(5, 5))
             #
             # ax.scatter(x=expected_real_loc[:, 0], y=expected_real_loc[:, 1],s=0.1,  c="blue", label="Pred")
@@ -139,7 +139,6 @@ for image_file in image_files:
             # plt.text(x_text, y_text, text, ha='center', va='top', fontsize=12)
             # plt.legend()
             # plt.show()
-            # plt.clf()
             ccount+=1
             ck+=i
             ctraj_dist+=traj_dist

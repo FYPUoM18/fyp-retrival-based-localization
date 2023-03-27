@@ -1,0 +1,1 @@
+The Fréchet distance is a measure of similarity between two curves or trajectories, based on the minimum distance between a point moving along one curve and a point moving along the other curve. It takes into account the shape and geometry of the curves, and provides a measure of how close the curves are to each other.
