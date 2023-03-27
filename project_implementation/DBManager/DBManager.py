@@ -17,7 +17,7 @@ class DBManager:
 
     def __init__(self, conf):
         self.conf = conf
-        self.model = models.efficientnet_b0(pretrained=True)
+        self.model = models.inception_v3(pretrained=True)
         self.model.eval()
 
     def generateImageDB(self):
@@ -90,8 +90,8 @@ class DBManager:
 
         img = img.convert("RGB")
         transform = transforms.Compose([
-            transforms.Resize(224),
-            transforms.CenterCrop(224),
+            transforms.Resize(299),
+            transforms.CenterCrop(299),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
@@ -136,6 +136,7 @@ class DBManager:
             tags.append(image)
             pil_img.close()
         print("Extracted Features")
+
 
         tree=KDTree(features)
         with open(self.conf.kdtree_features_loc, "wb") as f:

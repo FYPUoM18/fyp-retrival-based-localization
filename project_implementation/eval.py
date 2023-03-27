@@ -104,6 +104,18 @@ for image_file in image_files:
         ##pil_img.show()
         #pil_img_best_match.show()
 
+        # if img_dist[i]>20:
+        #     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(10, 5))
+        #     ax1.imshow(pil_img)
+        #     ax2.imshow(pil_img_best_match)
+        #     ax3.text(0.1, 0.5, 'Image Distance :'+str(img_dist[i]), fontsize=12)
+        #     ax1.set_title('Input')
+        #     ax2.set_title('Best Match')
+        #     plt.show()
+
+
+
+
         expected_real_loc = fetchRealLocs(image_name)
         predicted_real_loc = fetchRealLocs(best_image_name)
 
