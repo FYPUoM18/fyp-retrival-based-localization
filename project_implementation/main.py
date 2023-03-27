@@ -5,6 +5,7 @@ from csv_converter.csv_generator import CSV_Generator
 from domain_mapper.convert_domain import DomainConverter
 from train_test_val.train_test_val import TrainTestValSplitter
 from traj_visualizer.traj_visualizer import TrajVisualizer
+from history.HistoryModel import HistoryModel
 
 steps = config.steps
 
@@ -36,3 +37,8 @@ if __name__ == "__main__":
     if 7 in steps:
         generate_imagedb = DBManager(config)
         generate_imagedb.buildKDTree()
+
+    if 8 in steps:
+        historyModel=HistoryModel(config)
+        historyModel.process()
+

@@ -1,5 +1,5 @@
 # Steps
-steps = [7]
+steps = [8]
 
 # Root Dir
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code"
@@ -61,7 +61,7 @@ segment_length = 0.1
 # Step6 : Image DB Generate
 image_db_loc = f"{root_dir}\\project_implementation\\outputs\\5. imageDB"
 image_db_meta_file = f"{root_dir}\\project_implementation\\outputs\\image_db_meta_file.csv"
-window_size = 220  # Same Length Curve For All Images : Length = 220 x 0.1 = 22
+window_size = 120  # Same Length Curve For All Images : Length = 220 x 0.1 = 22
 step_size = 50
 
 # Step7 : Build KDTree
@@ -70,5 +70,13 @@ kdtree_features_loc = f"{root_dir}\\project_implementation\\outputs\\kdtree_feat
 kdtree_tags_loc = f"{root_dir}\\project_implementation\\outputs\\kdtree_tags.pickle"
 
 # Eval
-DTWThreshold_Expected_Real_LOC_Predicted__REAL_LOC_SEQS = 100
-window_size = 120
+# DTWThreshold_Expected_Real_LOC_Predicted__REAL_LOC_SEQS = 100
+# window_size = 120
+
+# Step8 : History Model
+to_eval_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\4. invariant\\test"
+history_output_loc="C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\6. History"
+db_meta_csv = image_db_meta_file
+invariant_dir = invariant_domain_output_dir
+
+

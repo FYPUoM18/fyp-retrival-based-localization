@@ -14,7 +14,7 @@ from scipy.spatial.distance import cdist
 import config
 from DBManager.DBManager import DBManager
 
-to_eval_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\5. imageDB\\test"
+to_eval_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\5. imageDB\\train"
 db_meta_csv = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\image_db_meta_file" \
               ".csv"
 db_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\5. imageDB\\db"
@@ -123,7 +123,7 @@ for image_file in image_files:
         #print(expected_real_loc[-1])
 
         traj_dist=frechet_distance(expected_real_loc,predicted_real_loc)
-        if traj_dist<=6 :
+        if traj_dist<=10 :
             # fig, ax = plt.subplots(figsize=(5, 5))
             #
             # ax.scatter(x=expected_real_loc[:, 0], y=expected_real_loc[:, 1],s=0.1,  c="blue", label="Pred")
