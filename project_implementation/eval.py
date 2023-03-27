@@ -95,7 +95,7 @@ for image_file in image_files:
     pil_img = Image.open(image_loc)
 
     feature = dbmanager.extract_features(pil_img)
-    img_dist, ind = tree.query(feature,k=100)
+    img_dist, ind = tree.query(feature,k=50)
     for i in range(len(ind)):
         best_image_name = tags[ind[i]]
         best_img_loc = osp.join(db_dir, best_image_name)
