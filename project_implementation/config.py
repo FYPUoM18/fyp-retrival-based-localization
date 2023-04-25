@@ -1,5 +1,5 @@
 # Steps
-steps = [3]
+steps = [3,4]
 
 # Root Dir
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code"
@@ -48,6 +48,7 @@ no_of_sec_per_split = 45  # No fo seconds considered for a split
 train_test_val_meta_file = f"{root_dir}\\project_implementation\\outputs\\train_test_val_meta.csv"
 
 # Step3: Get RoNIN Trajectory
+sample_rate=200
 ronin_checkpoint = f"{root_dir}\\project_implementation\\ronin_resnet\\checkpoint_gsn_latest.pt"
 processed_hdf5_out_dir = f"{root_dir}\\project_implementation\\outputs\\2. processed_data"
 

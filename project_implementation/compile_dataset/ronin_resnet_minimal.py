@@ -21,13 +21,13 @@ sys.path.append(osp.join(osp.dirname(osp.abspath(__file__)), '..'))
 
 class StridedSequenceData(Dataset):
     """ Load a single data sequence"""
-    def __init__(self, data_path, step_size=10, window_size=200, **kwargs):
+    def __init__(self, data_path, **kwargs):
         super(StridedSequenceData, self).__init__()
         self.feature_dim = 6
         self.target_dim = 2
-        self.window_size = window_size
-        self.step_size = step_size
-        self.interval = kwargs.get('interval', window_size)
+        self.window_size = kwargs.get('window_size')
+        self.step_size = kwargs.get('step_size')
+        self.interval = kwargs.get('interval', self.window_size)
 
         self.data_path = data_path
         self.index_map = []
@@ -56,7 +56,7 @@ class StridedSequenceData(Dataset):
         feat_sigma = kwargs.get('feature_sigma,', -1)
         if feat_sigma > 0:
             self.features = gaussian_filter1d(self.features, sigma=feat_sigma, axis=0)
-        self.index_map = np.arange(0, self.features.shape[0] - self.interval, step_size)
+        self.index_map = np.arange(0, self.features.shape[0] - self.interval, self.step_size)
 
     def __getitem__(self, item):
         frame_id = self.index_map[item]
@@ -86,10 +86,10 @@ def test_sequence(test_path, **kwargs):
 
     network.load_state_dict(checkpoint['model_state_dict'])
     network.eval().to(device)
-    print('Model {} loaded to device {}.'.format(kwargs.get('model_path'), device))
+
 
     predictions = []
-    network.eval()
+    print('Model {} loaded to device {}.'.format(kwargs.get('model_path'), device))
     for bid, (feat, _) in enumerate(seq_loader):
         pred = network(feat.to(device)).cpu().detach().numpy()
         predictions.append(pred)

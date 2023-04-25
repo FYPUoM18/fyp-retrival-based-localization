@@ -198,7 +198,7 @@ class Compiler:
     #         data[:, 0] >= output_time[0], data[:, 0] <= output_time[-1])]
     #     return data
 
-    def compile_unannotated_sequence(self, root_dir, data_list, ronin_checkpoint, out_dir, isnano, is_loc_available):
+    def compile_unannotated_sequence(self, root_dir, data_list, ronin_checkpoint, out_dir, isnano, is_loc_available,is_gyro_shuffled,sample_rate):
         """
         Compile unannotated(or imu_only) sequence directly from raw files.
         """
@@ -253,7 +253,7 @@ class Compiler:
                     source_vector.add('tango_pos')
                     source_quaternion.add('tango_ori')
 
-                output_time = self.compute_output_time(all_sources)
+                output_time = self.compute_output_time(all_sources,sample_rate=sample_rate)
                 processed_sources = {}
                 for source in all_sources.keys():
                     if source in source_vector:
@@ -261,8 +261,12 @@ class Compiler:
                             all_sources[source], output_time, 'vector')
                     else:
                         print(output_time)
-                        processed_sources[source] = self.process_data_source(
-                            all_sources[source][:, [0, 4, 1, 2, 3]], output_time, 'quaternion')
+                        if is_gyro_shuffled:
+                            processed_sources[source] = self.process_data_source(
+                                all_sources[source][:, [0, 1, 2, 3, 4]], output_time, 'quaternion')
+                        else:
+                            processed_sources[source] = self.process_data_source(
+                                all_sources[source][:, [0, 4, 1, 2, 3]], output_time, 'quaternion')
 
                 meta_info = {'type': 'unannotated',
                              'length': output_time[-1] - output_time[0],
@@ -314,11 +318,11 @@ class Compiler:
                                      data=processed_sources['tango_ori'])
 
                 print('Calculate ronin trajectory')
-                # ronin_traj = self.get_ronin_resnet_traj(
-                #     out_path, ronin_checkpoint)
+                ronin_traj = self.get_ronin_resnet_traj(
+                    out_path, ronin_checkpoint)
                 with h5py.File(osp.join(out_path, 'data.hdf5'), 'a') as f:
                     f.create_group('computed')
-                    f.create_dataset('computed/ronin', data=processed_sources["ronin"])
+                    f.create_dataset('computed/ronin', data=ronin_traj)
 
             except (OSError, FileNotFoundError, TypeError) as e:
                 print(e)
@@ -330,6 +334,7 @@ class Compiler:
     def compile(self):
 
         csv_dir = self.conf.csv_out_dir
+        sample_rate=self.conf.sample_rate
         folder_list = [osp.split(path)[1] for path in os.listdir(csv_dir)]
 
         for folder in folder_list:
@@ -344,9 +349,11 @@ class Compiler:
 
             is_nano = False
             is_loc_available = True
+            is_gyro_shuffled = True
             if folder == "mobile":
                 is_nano = True
                 is_loc_available = False
+                is_gyro_shuffled = False
 
             self.compile_unannotated_sequence(
-                root_dir, data_list, ronin_checkpoint, out_dir, is_nano, is_loc_available)
+                root_dir, data_list, ronin_checkpoint, out_dir, is_nano, is_loc_available,is_gyro_shuffled,sample_rate)
