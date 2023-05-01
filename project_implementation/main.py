@@ -50,11 +50,11 @@ if __name__ == "__main__":
         storer.process(config.val_invariant_dir, "val")
 
     if 9 in steps:
-        LSTM_MODEL=LSTM(config)
-        LSTM_MODEL.train()
-        # historyModel=HistoryModel(config)
-        # historyModel.process()
+        # LSTM_MODEL=LSTM(config)
+        # LSTM_MODEL.train()
+        historyModel=HistoryModel(config)
+        historyModel.process()
 
-    if 10 in steps:
-        LSTM_MODEL=LSTM(config)
-        LSTM_MODEL.visualize()
+    # if 10 in steps:
+    #     LSTM_MODEL=LSTM(config)
+    #     LSTM_MODEL.visualize()

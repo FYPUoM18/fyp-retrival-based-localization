@@ -153,13 +153,11 @@ class HistoryModel:
 
         # List Directory
         files=os.listdir(self.conf.to_eval_dir)
-        # random.shuffle(files)
+        random.shuffle(files)
         print("No of Files Found :",len(files))
         count=0
         for file in files:
             count+=1
-            if count<2:
-                continue
             # Setup Directories
             data_out_dir = osp.join(self.conf.history_output_loc,file)
             if os.path.exists(data_out_dir):
@@ -199,68 +197,112 @@ class HistoryModel:
                 traj_layers.append(layer)
 
 
+
+            # # Filter Layers Using History
             # Filter Layers Using History
-            no_of_layers=len(traj_layers)
-            lines=[]
-            passed=[]
-            for i in range(no_of_layers-1):
-                print("Processing Layer {one} and {two}".format(one=i,two=i+1))
-                layer1=traj_layers[i]
-                layer2=traj_layers[i+1]
-                layer1_no=i
-                layer2_no=i+1
+            no_of_layers = len(traj_layers)
+            lines = set()
+            passed = set()
+            for i in range(no_of_layers - 1):
+                print("Processing Layer {one} and {two}".format(one=i, two=i + 1))
+                layer1 = traj_layers[i]
+                layer2 = traj_layers[i + 1]
+                layer1_no = i
+                layer2_no = i + 1
 
-                for traj1no in range(len(layer1)):
-                    if i>0:
-                        inprevlayer=False
-                        for line in lines:
-                            if line[-1]==(layer1_no,traj1no):
-                                inprevlayer=True
-                                break
-                        if not inprevlayer:
-                            continue
-                    for traj2no in range(len(layer2)):
-                        traj1=layer1[traj1no]
-                        traj2=layer2[traj2no]
-                        if self.is_overlaps(traj1,traj2):
-                            passed.append(((layer1_no,traj1no),(layer2_no,traj2no)))
-                if i==0:
-                    lines=passed.copy()
-                    passed=[]
+                for traj1no, traj1 in enumerate(layer1):
+                    if i > 0 and not any(line[-1] == (layer1_no, traj1no) for line in lines):
+                        continue
+                    for traj2no, traj2 in enumerate(layer2):
+                        if self.is_overlaps(traj1, traj2):
+                            passed.add(((layer1_no, traj1no), (layer2_no, traj2no)))
+
+                if i == 0:
+                    lines = passed.copy()
+                    passed = set()
                 else:
-                    templine=[]
-                    for line in lines:
-                        endnode=line[-1]
-                        for passes in passed:
-                            startnode=passes[0]
-                            if endnode==startnode:
-                                merged = line
-                                for element in passes:
-                                    if element not in line:
-                                        merged += (element,)
-                                templine.append(merged)
-                    passed=[]
-                    lines=templine
-
-
+                    lines = {merged for line in lines for passes in passed
+                             if line[-1] == passes[0] and (
+                                 merged := line + passes[1:] if passes[1:] not in line else line)}
+                    passed = set()
 
                 plt.axis('off')
-                plt.xlim((0,60))
+                plt.xlim((0, 60))
                 plt.ylim((0, 150))
-                print("No of Lines :",len(lines))
+                print("No of Lines :", len(lines))
                 # print(lines)
 
                 plt.scatter(x=real_loc[:, 0], y=real_loc[:, 1], color="red", s=0.1)
 
-                for line_no in range(len(lines)):
-                    line = lines[line_no]
-                    color = np.random.rand(3)
-
+                for color, line in zip(np.random.rand(len(lines), 3), lines):
                     for node in line:
-                        plt.scatter(x=traj_layers[node[0]][node[1]][:, 0], y=traj_layers[node[0]][node[1]][:, 1],s=0.01,color=color)
-                plt.savefig(osp.join(data_out_dir,"traj-"+str(i)+".png"))
-                #plt.show()
+                        plt.scatter(x=traj_layers[node[0]][node[1]][:, 0], y=traj_layers[node[0]][node[1]][:, 1],
+                                    s=0.01, color=color)
+                plt.savefig(osp.join(data_out_dir, "traj-" + str(i) + ".png"))
+                # plt.show()
                 plt.clf()
+
+            # no_of_layers=len(traj_layers)
+            # lines=[]
+            # passed=[]
+            # for i in range(no_of_layers-1):
+            #     print("Processing Layer {one} and {two}".format(one=i,two=i+1))
+            #     layer1=traj_layers[i]
+            #     layer2=traj_layers[i+1]
+            #     layer1_no=i
+            #     layer2_no=i+1
+            #
+            #     for traj1no in range(len(layer1)):
+            #         if i>0:
+            #             inprevlayer=False
+            #             for line in lines:
+            #                 if line[-1]==(layer1_no,traj1no):
+            #                     inprevlayer=True
+            #                     break
+            #             if not inprevlayer:
+            #                 continue
+            #         for traj2no in range(len(layer2)):
+            #             traj1=layer1[traj1no]
+            #             traj2=layer2[traj2no]
+            #             if self.is_overlaps(traj1,traj2):
+            #                 passed.append(((layer1_no,traj1no),(layer2_no,traj2no)))
+            #     if i==0:
+            #         lines=passed.copy()
+            #         passed=[]
+            #     else:
+            #         templine=[]
+            #         for line in lines:
+            #             endnode=line[-1]
+            #             for passes in passed:
+            #                 startnode=passes[0]
+            #                 if endnode==startnode:
+            #                     merged = line
+            #                     for element in passes:
+            #                         if element not in line:
+            #                             merged += (element,)
+            #                     templine.append(merged)
+            #         passed=[]
+            #         lines=templine
+            #
+            #
+            #
+            #     plt.axis('off')
+            #     plt.xlim((0,60))
+            #     plt.ylim((0, 150))
+            #     print("No of Lines :",len(lines))
+            #     # print(lines)
+            #
+            #     plt.scatter(x=real_loc[:, 0], y=real_loc[:, 1], color="red", s=0.1)
+            #
+            #     for line_no in range(len(lines)):
+            #         line = lines[line_no]
+            #         color = np.random.rand(3)
+            #
+            #         for node in line:
+            #             plt.scatter(x=traj_layers[node[0]][node[1]][:, 0], y=traj_layers[node[0]][node[1]][:, 1],s=0.01,color=color)
+            #     plt.savefig(osp.join(data_out_dir,"traj-"+str(i)+".png"))
+            #     #plt.show()
+            #     plt.clf()
 
             #print("Start Plotting")
             # plt.axis('off')
