@@ -44,7 +44,7 @@ for i in range(len(features)):
                 np_feature = np_feature[:-1, :, :, :]
                 remove_from_top=True
 
-    np_feature = np_feature[:, :, [0,29,59,89,119], :]
+    np_feature = np_feature[:, :, : , :]
     print(np_feature.shape)
 
     processed_labels.append(labels[i])

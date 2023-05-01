@@ -2,6 +2,7 @@ import random
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
@@ -12,22 +13,29 @@ import matplotlib.pyplot as plt
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Define the RNN model
-class RNN(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, output_size):
-        super(RNN, self).__init__()
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
-        self.fc = nn.Linear(hidden_size, output_size)
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv3d(in_channels=5, out_channels=16, kernel_size=2, padding=1)
+        self.conv2 = nn.Conv3d(in_channels=16, out_channels=32, kernel_size=2, padding=1)
+        self.conv3 = nn.Conv3d(in_channels=32, out_channels=64, kernel_size=2, padding=1)
+        self.pool = nn.MaxPool3d(kernel_size=2, stride=2)
+        self.fc1 = nn.Linear(in_features=6720, out_features=512)
+        self.fc2 = nn.Linear(in_features=512, out_features=256)
+        self.fc3 = nn.Linear(in_features=256, out_features=2)
 
     def forward(self, x):
-        x = x.view(x.shape[0], x.shape[1], -1)
-        h0 = torch.zeros(self.num_layers,x.shape[0], self.hidden_size).to(device)
-        c0 = torch.zeros(self.num_layers,x.shape[0], self.hidden_size).to(device)
-        out, _ = self.lstm(x, (h0, c0))
-        out = self.fc(out[:, -1, :])
-        return out
-
+        x = F.relu(self.conv1(x))
+        x = self.pool(x)
+        x = F.relu(self.conv2(x))
+        x = self.pool(x)
+        x = F.relu(self.conv3(x))
+        x = self.pool(x)
+        x = x.view(-1, 6720)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
 class Dataset:
     def __init__(self,type,conf):
 
@@ -53,7 +61,6 @@ class Dataset:
         data = np.array(self.features[index]).astype(np.float32)
         labels = np.array(self.labels[index]).astype(np.float32)
 
-        print(data.shape, labels.shape)
         return data, labels
 
 
@@ -62,27 +69,27 @@ class LSTM():
     def __init__(self,conf):
 
         self.conf=conf
-        self.input_size = 2500
-        self.hidden_size = 128  # Number of hidden units in the LSTM
-        self.num_layers = 2  # Number of LSTM layers
+        self.input_size = 5 * 50 * 120 * 2
         self.output_size = 2  # Output size of the model
-        self.batch_size = 1
+        self.train_batch_size = 1
+        self.test_batch_size=1
         self.learning_rate = 0.001
-        self.num_epochs = 10
+        self.num_epochs = 50
 
     def train(self):
 
         #Create model and optimizer
-        model = RNN(self.input_size, self.hidden_size, self.num_layers, self.output_size).to(device)
+        model = Model().to(device)
         criterion = nn.MSELoss()
         optimizer = optim.Adam(model.parameters(), lr=self.learning_rate)
 
-        train_dataloader = DataLoader(Dataset("train",self.conf), batch_size=self.batch_size, shuffle=True)
-        test_dataloader = DataLoader(Dataset("test", self.conf), batch_size=self.batch_size, shuffle=True)
+        train_dataloader = DataLoader(Dataset("train",self.conf), batch_size=self.train_batch_size, shuffle=True,drop_last=True)
+        test_dataloader = DataLoader(Dataset("test", self.conf), batch_size=self.test_batch_size, shuffle=True,drop_last=True)
 
         # Train the model
         for epoch in range(self.num_epochs):
             for i, (data, labels) in enumerate(train_dataloader):
+                # data = data.reshape((self.train_batch_size,-1))
                 data = data.to(device)
                 labels = labels.float().to(device)
                 outputs = model(data)
@@ -90,8 +97,7 @@ class LSTM():
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-
-                if (i + 1) % 10 == 0:
+                if (i + 1) % 89 == 0:
                     print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
                           .format(epoch + 1, self.num_epochs, i + 1, len(train_dataloader), loss.item()))
 
@@ -119,14 +125,13 @@ class LSTM():
     def visualize(self):
 
         model_params = torch.load('model.pth', map_location=device)
-        model = RNN(self.input_size, self.hidden_size, self.num_layers, self.output_size).to(device)
+        model = Model().to(device)
         model.load_state_dict(model_params)
 
-        test_dataloader = DataLoader(Dataset("test", self.conf), batch_size=self.batch_size, shuffle=True)
+        dataloader = DataLoader(Dataset("test", self.conf), batch_size=1, shuffle=True)
 
         with torch.no_grad():
-            for i, (data, labels) in enumerate(test_dataloader):
-
+            for i, (data, labels) in enumerate(dataloader):
 
                 outputs = model(data)
                 print(data.shape,labels[:,0],outputs[0])

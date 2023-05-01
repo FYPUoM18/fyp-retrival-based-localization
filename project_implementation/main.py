@@ -57,5 +57,4 @@ if __name__ == "__main__":
 
     if 10 in steps:
         LSTM_MODEL=LSTM(config)
-
-        # LSTM_MODEL.visualize()
+        LSTM_MODEL.visualize()
