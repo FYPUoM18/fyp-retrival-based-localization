@@ -6,6 +6,8 @@ from domain_mapper.convert_domain import DomainConverter
 from train_test_val.train_test_val import TrainTestValSplitter
 from traj_visualizer.traj_visualizer import TrajVisualizer
 from history.HistoryModel import HistoryModel
+from history.DataStorer import DataStorer
+from history.LSTM import LSTM
 
 steps = config.steps
 
@@ -42,5 +44,18 @@ if __name__ == "__main__":
         generate_imagedb.buildKDTree()
 
     if 8 in steps:
-        historyModel=HistoryModel(config)
-        historyModel.process()
+        storer=DataStorer(config)
+        #storer.process(config.train_invariant_dir,"train")
+        storer.process(config.test_invariant_dir, "test")
+        storer.process(config.val_invariant_dir, "val")
+
+    if 9 in steps:
+        LSTM_MODEL=LSTM(config)
+        LSTM_MODEL.train()
+        # historyModel=HistoryModel(config)
+        # historyModel.process()
+
+    if 10 in steps:
+        LSTM_MODEL=LSTM(config)
+
+        # LSTM_MODEL.visualize()

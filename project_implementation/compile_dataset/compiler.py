@@ -202,11 +202,11 @@ class Compiler:
         """
         Compile unannotated(or imu_only) sequence directly from raw files.
         """
-        source_vector = {'gyro', 'acce','ronin'}
+        source_vector = {'gyro', 'acce'}
         source_quaternion = {'game_rv'}
         fail_list = []
         divider = 1000000000 if isnano else 1
-        _raw_data_sources = ['gyro', 'acce', 'game_rv','ronin']
+        _raw_data_sources = ['gyro', 'acce', 'game_rv']
         _optional_data_sources = []
         if is_loc_available:
             source_vector.add('loc')

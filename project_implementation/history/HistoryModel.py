@@ -1,4 +1,6 @@
 import os
+import random
+
 import numpy as np
 import matplotlib.pyplot as plt
 import shutil
@@ -8,6 +10,9 @@ from os import path as osp
 from PIL import Image
 from DBManager.DBManager import DBManager
 from scipy.spatial.distance import cdist
+from scipy.spatial.distance import euclidean
+from fastdtw import fastdtw
+
 
 class HistoryModel:
     def __init__(self,conf):
@@ -28,6 +33,12 @@ class HistoryModel:
             if np.array_equal(arr, target_arr):
                 return True
         return False
+
+    def is_overlaps(self, P, Q):
+
+        distance = self.frechet_distance(P,Q)
+        return distance<self.conf.filter_distance_threshold
+
     def frechet_distance(self,P, Q):
         """
         Compute the Fréchet distance between two trajectories P and Q.
@@ -142,13 +153,13 @@ class HistoryModel:
 
         # List Directory
         files=os.listdir(self.conf.to_eval_dir)
+        # random.shuffle(files)
         print("No of Files Found :",len(files))
         count=0
         for file in files:
             count+=1
-            if count<4:
+            if count<2:
                 continue
-
             # Setup Directories
             data_out_dir = osp.join(self.conf.history_output_loc,file)
             if os.path.exists(data_out_dir):
@@ -179,7 +190,7 @@ class HistoryModel:
                 print("-- For Sub Trajectory:",subTraj)
 
                 layer=[]
-                img_dist, ind = tree.query(feature, k=50)
+                img_dist, ind = tree.query(feature, k=self.conf.no_of_candidates)
                 for i in range(len(ind)):
                     best_image_name = tags[ind[i]]
                     predicted_real_loc = self.fetchRealLocs(best_image_name)
@@ -211,8 +222,7 @@ class HistoryModel:
                     for traj2no in range(len(layer2)):
                         traj1=layer1[traj1no]
                         traj2=layer2[traj2no]
-                        fdist=self.frechet_distance(traj1,traj2)
-                        if fdist<6:
+                        if self.is_overlaps(traj1,traj2):
                             passed.append(((layer1_no,traj1no),(layer2_no,traj2no)))
                 if i==0:
                     lines=passed.copy()
@@ -237,12 +247,17 @@ class HistoryModel:
                 plt.axis('off')
                 plt.xlim((0,60))
                 plt.ylim((0, 150))
-                print("No of Trajs :",len(lines))
-                print(lines)
-                for line in lines:
+                print("No of Lines :",len(lines))
+                # print(lines)
+
+                plt.scatter(x=real_loc[:, 0], y=real_loc[:, 1], color="red", s=0.1)
+
+                for line_no in range(len(lines)):
+                    line = lines[line_no]
+                    color = np.random.rand(3)
+
                     for node in line:
-                        plt.scatter(x=traj_layers[node[0]][node[1]][:, 0], y=traj_layers[node[0]][node[1]][:, 1],s=0.01, linestyle='-')
-                plt.scatter(x=real_loc[:, 0], y=real_loc[:, 1],c="red", s=0.1)
+                        plt.scatter(x=traj_layers[node[0]][node[1]][:, 0], y=traj_layers[node[0]][node[1]][:, 1],s=0.01,color=color)
                 plt.savefig(osp.join(data_out_dir,"traj-"+str(i)+".png"))
                 #plt.show()
                 plt.clf()

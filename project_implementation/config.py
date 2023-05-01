@@ -1,8 +1,12 @@
 # Steps
-steps = [1,2,3,4,5,6,7,8]
+steps = [9]
+
+# Building Params
+x_lim=60
+y_lim=150
 
 # Root Dir
-root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\set2"
+root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\3. set - through-ronin-custom-contrastive"
 
 # Step1: Generate CSV From HDF5
 hdf5datadir = {
@@ -68,11 +72,18 @@ step_size = 50
 image_db_loc_kdtree = f"{root_dir}\\5. imageDB\\db"
 kdtree_features_loc = f"{root_dir}\\kdtree_features.pickle"
 kdtree_tags_loc = f"{root_dir}\\kdtree_tags.pickle"
+frechet_distance_threshold=10
 
-# Step8 : History Model
-to_eval_dir = f"{root_dir}\\4. invariant\\test"
-history_output_loc=f"{root_dir}\\6. History"
+# Step8 : Data Storer
+train_invariant_dir = f"{root_dir}\\4. invariant\\train"
+test_invariant_dir = f"{root_dir}\\4. invariant\\test"
+val_invariant_dir = f"{root_dir}\\4. invariant\\val"
+extracted_data_output_loc=f"{root_dir}\\6. Extracted Data"
+no_of_candidates=50
+
+# Step9 : History Model
+to_eval_dir = f"{root_dir}\\4. invariant\\train"
+history_output_loc=f"{root_dir}\\7. History"
 db_meta_csv = image_db_meta_file
 invariant_dir = invariant_domain_output_dir
-
-
+filter_distance_threshold=6
