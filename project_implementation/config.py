@@ -1,5 +1,5 @@
 # Steps
-steps = [9]
+steps = [8]
 
 # Building Params
 x_lim=60
@@ -79,10 +79,10 @@ train_invariant_dir = f"{root_dir}\\4. invariant\\train"
 test_invariant_dir = f"{root_dir}\\4. invariant\\test"
 val_invariant_dir = f"{root_dir}\\4. invariant\\val"
 extracted_data_output_loc=f"{root_dir}\\6. Extracted Data"
-no_of_candidates=30
+no_of_candidates=50
 
 # Step9 : History Model
-to_eval_dir = f"{root_dir}\\4. invariant\\train"
+to_eval_dir = f"{root_dir}\\4. invariant\\test"
 history_output_loc=f"{root_dir}\\7. History"
 db_meta_csv = image_db_meta_file
 invariant_dir = invariant_domain_output_dir
