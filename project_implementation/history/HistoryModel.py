@@ -200,6 +200,15 @@ class HistoryModel:
                     #plt.scatter(x=predicted_real_loc[:, 0], y=predicted_real_loc[:, 1],s=0.01, linestyle='-')
                 traj_layers.append(layer)
 
+            X=[]
+
+            for layer in traj_layers:
+                for node in layer:
+                    for coordinate in node:
+                        X.append(coordinate)
+                Y=np.array(X)
+                X = dbscan_cluster(Y,real_loc)
+            continue
 
 
             # # Filter Layers Using History
@@ -314,3 +323,37 @@ class HistoryModel:
             #     plt.scatter(x=traj_layers[node[0]][node[1]][:, 0], y=traj_layers[node[0]][node[1]][:, 1],s=0.01, linestyle='-')
             # plt.show()
             #break
+
+from sklearn.cluster import DBSCAN
+import numpy as np
+import matplotlib.pyplot as plt
+
+def dbscan_cluster(X,real_loc=None):
+    # Instantiate DBSCAN with the given epsilon and min_samples
+    dbscan = DBSCAN(eps=0.01, min_samples=5)
+
+    # Fit the model to the data
+    dbscan.fit(X)
+
+    # Retrieve the cluster labels for each point
+    labels = dbscan.labels_
+
+    # Get the number of points in each cluster
+    _, counts = np.unique(labels, return_counts=True)
+
+    # Get the cluster label with the largest number of members
+    max_label = np.argmax(counts)
+
+    # Keep only the points that belong to the largest cluster
+    X = X[labels == max_label]
+
+    # Visualize the clustering results using a scatter plot
+    plt.scatter(x=real_loc[:, 0], y=real_loc[:, 1], color="red", s=0.3)
+    plt.scatter(X[:, 0], X[:, 1], cmap='viridis',s=0.1)
+    plt.title('DBSCAN Clustering')
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.show()
+
+    # Return the cluster labels for each point
+    return list(X)

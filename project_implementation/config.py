@@ -80,7 +80,7 @@ train_invariant_dir = f"{root_dir}\\4. invariant\\train"
 test_invariant_dir = f"{root_dir}\\4. invariant\\test"
 val_invariant_dir = f"{root_dir}\\4. invariant\\val"
 extracted_data_output_loc=f"{root_dir}\\6. Extracted Data"
-no_of_candidates=50
+no_of_candidates=30
 
 # Step9 : History Model
 to_eval_dir = f"{root_dir}\\4. invariant\\train"
