@@ -206,8 +206,8 @@ class HistoryModel:
                 for node in layer:
                     for coordinate in node:
                         X.append(coordinate)
-                Y=np.array(X)
-                X = dbscan_cluster(Y,real_loc)
+            X=np.array(X)
+            dbscan_cluster(X,real_loc)
             continue
 
 
@@ -330,7 +330,7 @@ import matplotlib.pyplot as plt
 
 def dbscan_cluster(X,real_loc=None):
     # Instantiate DBSCAN with the given epsilon and min_samples
-    dbscan = DBSCAN(eps=0.01, min_samples=5)
+    dbscan = DBSCAN(eps=0.5, min_samples=50)
 
     # Fit the model to the data
     dbscan.fit(X)
@@ -349,7 +349,7 @@ def dbscan_cluster(X,real_loc=None):
 
     # Visualize the clustering results using a scatter plot
     plt.scatter(x=real_loc[:, 0], y=real_loc[:, 1], color="red", s=0.3)
-    plt.scatter(X[:, 0], X[:, 1], cmap='viridis',s=0.1)
+    plt.scatter(X[:, 0], X[:, 1],cmap='viridis',s=0.1)
     plt.title('DBSCAN Clustering')
     plt.xlabel('X')
     plt.ylabel('Y')
