@@ -89,7 +89,7 @@ class TrajVisualizer:
                                 os.makedirs(savepath)
 
                             plt.scatter(x=ronin[:,0], y=ronin[:,1], s=0.01, linewidths=0.01, c="blue", label="RoNIN")
-                            plt.axis('off')
+                            # plt.axis('off')
                             plt.savefig(osp.join(savepath,"traj_in_db.png"), dpi=1000)
                             plt.clf()
                             print("Added Traj In DB For :",target,otype2,file)

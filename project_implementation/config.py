@@ -1,10 +1,11 @@
 # Steps
-steps = [8]
+steps = [9]
 
 # Building Params
 x_lim=60
 y_lim=150
-
+# x_lim=15
+# y_lim=40
 # Root Dir
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\3. set - through-ronin-custom-contrastive"
 
@@ -74,7 +75,7 @@ kdtree_features_loc = f"{root_dir}\\kdtree_features.pickle"
 kdtree_tags_loc = f"{root_dir}\\kdtree_tags.pickle"
 frechet_distance_threshold=10
 
-# Step8 : Data Storer
+# Step8 : Eval Tune
 train_invariant_dir = f"{root_dir}\\4. invariant\\train"
 test_invariant_dir = f"{root_dir}\\4. invariant\\test"
 val_invariant_dir = f"{root_dir}\\4. invariant\\val"
@@ -82,8 +83,9 @@ extracted_data_output_loc=f"{root_dir}\\6. Extracted Data"
 no_of_candidates=50
 
 # Step9 : History Model
-to_eval_dir = f"{root_dir}\\4. invariant\\test"
+to_eval_dir = f"{root_dir}\\4. invariant\\train"
 history_output_loc=f"{root_dir}\\7. History"
 db_meta_csv = image_db_meta_file
 invariant_dir = invariant_domain_output_dir
 filter_distance_threshold=10
+max_no_of_frames = 4

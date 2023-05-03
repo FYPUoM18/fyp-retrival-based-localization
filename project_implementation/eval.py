@@ -14,7 +14,11 @@ from scipy.spatial.distance import cdist
 import config
 from DBManager.DBManager import DBManager
 
-root = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\set2"
+# TUNE
+#NO OF CANDIDATES
+#FRECHET DISTANCE
+
+root = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\3. set - through-ronin-custom-contrastive
 to_eval_dir = f"{root}\\5. imageDB\\test"
 db_meta_csv = f"{root}\\image_db_meta_file" \
               ".csv"
@@ -96,7 +100,7 @@ for image_file in image_files:
     pil_img = Image.open(image_loc)
 
     feature = dbmanager.extract_features(pil_img)
-    img_dist, ind = tree.query(feature,k=self.conf.no_of_candidates)
+    img_dist, ind = tree.query(feature,k=config.no_of_candidates)
     for i in range(len(ind)):
         best_image_name = tags[ind[i]]
         best_img_loc = osp.join(db_dir, best_image_name)
@@ -124,7 +128,7 @@ for image_file in image_files:
         #print(expected_real_loc[-1])
 
         traj_dist=frechet_distance(expected_real_loc,predicted_real_loc)
-        if traj_dist<=self.conf.frechet_distance_threshold :
+        if traj_dist<=config.frechet_distance_threshold :
             # fig, ax = plt.subplots(figsize=(5, 5))
             #
             # ax.scatter(x=expected_real_loc[:, 0], y=expected_real_loc[:, 1],s=0.1,  c="blue", label="Pred")

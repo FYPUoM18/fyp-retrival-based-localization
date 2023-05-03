@@ -189,6 +189,10 @@ class HistoryModel:
 
                 layer=[]
                 img_dist, ind = tree.query(feature, k=self.conf.no_of_candidates)
+
+                if isinstance(ind,np.int64):
+                    ind=[ind]
+
                 for i in range(len(ind)):
                     best_image_name = tags[ind[i]]
                     predicted_real_loc = self.fetchRealLocs(best_image_name)
@@ -227,8 +231,8 @@ class HistoryModel:
                     passed = set()
 
                 plt.axis('off')
-                plt.xlim((0, 60))
-                plt.ylim((0, 150))
+                plt.xlim((0, self.conf.x_lim))
+                plt.ylim((0, self.conf.y_lim))
                 print("No of Lines :", len(lines))
                 # print(lines)
 

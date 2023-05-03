@@ -39,7 +39,10 @@ class DBManager:
                 csv_path = os.path.join(dataset_root, "invariant_traj.csv")
 
                 # Load Sequence
-                new_seq = np.genfromtxt(csv_path, delimiter=',')[1:, :]
+                try:
+                    new_seq = np.genfromtxt(csv_path, delimiter=',')[1:, :]
+                except:
+                    continue
 
                 # Check Whether Minimum Length Found
                 if len(new_seq) < window_size:
