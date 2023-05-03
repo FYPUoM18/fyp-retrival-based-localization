@@ -5,3 +5,4 @@ virtual-env/*
 project_implementation/outputs/*
 old-methods/method-1/code/output/*
 project_implementation/ronin_resnet/*
+*.pyc
