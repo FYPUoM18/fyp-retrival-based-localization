@@ -41,6 +41,23 @@ class Evaluator:
         data = np.genfromtxt(data_loc, delimiter=',')[start+1:end+2,[3,4]]
         return data
 
+    def fetchRoNINLocs(self,image_name_in_db):
+        data_row = None
+        with open(self.conf.image_db_meta_file, newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            header = next(reader)
+            column_index = header.index('Image_name')
+
+            for row in reader:
+
+                if row[column_index] == image_name_in_db.split(".")[0]:
+                    data_row=row
+                    break
+        data_loc = osp.join(self.conf.invariant_domain_output_dir,data_row[1],data_row[2],"invariant_traj.csv")
+        start=int(data_row[3])
+        end=int(data_row[4])
+        data = np.genfromtxt(data_loc, delimiter=',')[start+1:end+2,[1,2]]
+        return data
 
     def frechet_distance(self,P, Q):
         """
@@ -93,11 +110,30 @@ class Evaluator:
             image_name = image_file
             image_loc = osp.join(self.conf.to_eval_dir, image_file)
             pil_img = Image.open(image_loc)
+            expected_real_loc = self.fetchRealLocs(image_name)
 
             feature = dbmanager.extract_features(pil_img)
             img_dist, ind = tree.query(feature,k=config.no_of_candidates)
+
+            all = {}
+
             for i in range(len(ind)):
+
                 best_image_name = tags[ind[i]]
+                best_img_loc = osp.join(self.conf.image_db_loc_kdtree, best_image_name)
+                pil_img_best_match = Image.open(best_img_loc)
+
+                ronin_traj= self.fetchRoNINLocs(best_image_name)
+                dist = self.frechet_distance(expected_real_loc,ronin_traj)
+
+                all[best_image_name] = dist
+
+            all = sorted(all.items(), key=lambda x: x[1])
+            top_images = [item[0] for item in all[:10]]
+
+
+            for i in range(len(top_images)):
+                best_image_name = top_images[i]
                 best_img_loc = osp.join(self.conf.image_db_loc_kdtree, best_image_name)
                 pil_img_best_match = Image.open(best_img_loc)
 
@@ -114,9 +150,6 @@ class Evaluator:
                 #     plt.show()
 
 
-
-
-                expected_real_loc = self.fetchRealLocs(image_name)
                 predicted_real_loc = self.fetchRealLocs(best_image_name)
 
                 #print(expected_real_loc[0])
