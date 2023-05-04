@@ -1,5 +1,6 @@
 import config
 from DBManager.DBManager import DBManager
+from DBManager.eval import Evaluator
 from compile_dataset.compiler import Compiler
 from csv_converter.csv_generator import CSV_Generator
 from domain_mapper.convert_domain import DomainConverter
@@ -43,6 +44,9 @@ if __name__ == "__main__":
         generate_imagedb = DBManager(config)
         generate_imagedb.buildKDTree()
 
+    if 8 in steps:
+        evaluator = Evaluator(config)
+        evaluator.evaluate()
     # if 8 in steps:
     #     storer=DataStorer(config)
     #     #storer.process(config.train_invariant_dir,"train")

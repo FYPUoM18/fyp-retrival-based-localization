@@ -77,8 +77,13 @@ class DBManager:
                     current_end_index += step_size
 
                     # Generate and Save Image
+                    # if folder =="db":
+                    #     x = window[:, 3] - window[0,3]
+                    #     y = window[:, 4] - window[0,4]
+                    # else:
                     x = window[:, 1]
                     y = window[:, 2]
+
 
                     plt.plot(x, y, linestyle='-')
                     plt.axis('off')
@@ -146,3 +151,9 @@ class DBManager:
             pickle.dump(tree, f)
         with open(self.conf.kdtree_tags_loc, "wb") as f:
             pickle.dump(tags, f)
+
+
+# TODO
+# -- IMAGE DB ONLY PROCESS GROUND TRUTH
+# -- INVARIANT MAKE FOR GROUND TRUTH
+# -- IMAGE MAKE FOR GROUND TRUTH
