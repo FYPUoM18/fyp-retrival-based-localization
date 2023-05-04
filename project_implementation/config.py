@@ -1,5 +1,5 @@
 # Steps
-steps = [9]
+steps = [6,7]
 
 # Building Params
 x_lim=60
@@ -66,14 +66,14 @@ segment_length = 0.1
 # Step6 : Image DB Generate
 image_db_loc = f"{root_dir}\\5. imageDB"
 image_db_meta_file = f"{root_dir}\\image_db_meta_file.csv"
-window_size = 120  # Same Length Curve For All Images : Length = 220 x 0.1 = 22
-step_size = 50
+window_size = 220  # Same Length Curve For All Images : Length = 220 x 0.1 = 22
+step_size = 70
 
 # Step7 : Build KDTree
 image_db_loc_kdtree = f"{root_dir}\\5. imageDB\\db"
 kdtree_features_loc = f"{root_dir}\\kdtree_features.pickle"
 kdtree_tags_loc = f"{root_dir}\\kdtree_tags.pickle"
-frechet_distance_threshold=10
+
 
 # Step8 : Eval Tune
 train_invariant_dir = f"{root_dir}\\4. invariant\\train"
@@ -81,6 +81,7 @@ test_invariant_dir = f"{root_dir}\\4. invariant\\test"
 val_invariant_dir = f"{root_dir}\\4. invariant\\val"
 extracted_data_output_loc=f"{root_dir}\\6. Extracted Data"
 no_of_candidates=30
+frechet_distance_threshold=10
 
 # Step9 : History Model
 to_eval_dir = f"{root_dir}\\4. invariant\\train"
