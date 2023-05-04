@@ -80,7 +80,7 @@ train_invariant_dir = f"{root_dir}\\4. invariant\\train"
 test_invariant_dir = f"{root_dir}\\4. invariant\\test"
 val_invariant_dir = f"{root_dir}\\4. invariant\\val"
 to_eval_dir = f"{root_dir}\\5. imageDB\\test"
-no_of_candidates=30
+no_of_candidates=50
 frechet_distance_threshold=10
 
 # Step9 : History Model
