@@ -3,12 +3,89 @@ import shutil
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
-
-
+from domain_mapper.aal import d_warp, to_aal
+from os import path as osp
+import uuid
 class DomainConverter:
 
     def __init__(self, conf):
         self.conf = conf
+
+    def make_rotation_invariant(self):
+        fail_list = []
+
+        # Initiate Window Parameters
+        window_size = self.conf.window_size
+        step_size = self.conf.step_size
+        print("Window Size", window_size)
+        print("Step Size", step_size)
+
+        # Iterate Over DB
+        for folder in os.listdir(self.conf.invariant_domain_output_dir):
+            folder_root = osp.join(self.conf.invariant_domain_output_dir, folder)
+            for dataset in os.listdir(folder_root):
+                dataset_root = osp.join(folder_root, dataset)
+                csv_path = os.path.join(dataset_root, "invariant_traj.csv")
+
+                # Load Sequence
+                try:
+                    new_seq = np.genfromtxt(csv_path, delimiter=',')[1:, :]
+                except:
+                    continue
+
+                # Check Whether Minimum Length Found
+                if len(new_seq) < window_size:
+                    fail_list.append(csv_path)
+                    print("Failed :", folder, dataset)
+                    continue
+
+                else:
+                    print("Processing :", folder, dataset)
+
+                # Building Sliding Window Parameter
+                max_index = len(new_seq) - 1
+                current_start_index = 0
+                current_end_index = current_start_index + window_size - 1
+
+                while current_end_index <= max_index:
+
+                    try:
+                        # Initialize
+                        file_name = str(uuid.uuid4())
+                        sub_db_loc = osp.join(self.conf.r_invariant_loc, folder)
+                        csv_data_loc = osp.join(sub_db_loc, file_name + ".csv")
+                        if not os.path.exists(sub_db_loc):
+                            os.makedirs(sub_db_loc)
+
+                        csv_data = [["id","i_ronin_x","i_ronin_y","i_ground_x","i_ground_y","AAL-Angle","AAL-Norm"]]
+
+                        # Get A Sliding Window
+                        window = new_seq[current_start_index:current_end_index + 1, :]
+                        current_start_index += step_size
+                        current_end_index += step_size
+
+                        # Generate and Save Image
+                        if folder =="db":
+                            seq = window[:, [3,4]] - window[0,[3,4]]
+                        else:
+                            seq = window[:, [0,1]]
+
+                        # Generate Invariant
+                        aal = to_aal([seq.tolist()])
+                        aal=np.array(aal[0])
+                        last_row = aal[-1]  # extract the last row
+                        aal = np.vstack((aal, last_row))
+
+                        # Add Column
+                        window = np.concatenate((window, aal), axis=1)
+                        csv_data.extend(window)
+
+                        #invariant
+                        np.savetxt(csv_data_loc, csv_data, delimiter=",", fmt='%s')
+                    except:
+                        continue
+        print("No of failures :", len(fail_list))
+        print("Saved Rotation Invariant Info")
 
     def make_time_invariant_ronin(self, data, segment_length):
         # Input coordinate array (latitude, longitude)

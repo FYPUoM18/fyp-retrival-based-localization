@@ -127,22 +127,19 @@ class DBManager:
 
     def buildKDTree(self):
 
-        tags = []
-        #images=[]
+        labels = []
         features = []
+
         i=0
-        print("Loading Images . . .")
-        for image in os.listdir(self.conf.image_db_loc_kdtree):
+        print("Loading Data . . .")
+        for label in os.listdir(self.conf.db_loc_kdtree):
             i=i+1
-            image_loc = osp.join(self.conf.image_db_loc_kdtree, image)
-            pil_img = Image.open(image_loc)
-            #images.append(pil_img)
-            feature = self.extract_features_all([pil_img])[0]
+            data_loc = osp.join(self.conf.db_loc_kdtree, label)
+            feature = np.genfromtxt(data_loc, delimiter=',')[1:, 5]
             if i%100==0:
                 print("Feature Shape :",i,",", feature.shape)
             features.append(feature)
-            tags.append(image)
-            pil_img.close()
+            labels.append(label)
         print("Extracted Features")
 
 
@@ -150,10 +147,5 @@ class DBManager:
         with open(self.conf.kdtree_features_loc, "wb") as f:
             pickle.dump(tree, f)
         with open(self.conf.kdtree_tags_loc, "wb") as f:
-            pickle.dump(tags, f)
+            pickle.dump(labels, f)
 
-
-# TODO
-# -- IMAGE DB ONLY PROCESS GROUND TRUTH
-# -- INVARIANT MAKE FOR GROUND TRUTH
-# -- IMAGE MAKE FOR GROUND TRUTH

@@ -63,29 +63,28 @@ traj_drawing_out_dir = f"{root_dir}\\3. traj_visualized"
 invariant_domain_output_dir = f"{root_dir}\\4. invariant"
 segment_length = 0.1
 
-# Step6 : Image DB Generate
-image_db_loc = f"{root_dir}\\5. imageDB"
-image_db_meta_file = f"{root_dir}\\image_db_meta_file.csv"
-window_size = 150
-step_size = 50
-
+# Step6 : Make Rotation Invariant
+r_invariant_loc = f"{root_dir}\\5. rotation_invariant"
+window_size = 200
+step_size = 20
+#
 # Step7 : Build KDTree
-image_db_loc_kdtree = f"{root_dir}\\5. imageDB\\db"
+db_loc_kdtree = f"{root_dir}\\5. rotation_invariant\\db"
 kdtree_features_loc = f"{root_dir}\\kdtree_features.pickle"
 kdtree_tags_loc = f"{root_dir}\\kdtree_tags.pickle"
 
-
+#
 # Step8 : Eval Tune
-train_invariant_dir = f"{root_dir}\\4. invariant\\train"
-test_invariant_dir = f"{root_dir}\\4. invariant\\test"
-val_invariant_dir = f"{root_dir}\\4. invariant\\val"
-to_eval_dir = f"{root_dir}\\5. imageDB\\test"
-no_of_candidates=50
-frechet_distance_threshold=10
-
-# Step9 : History Model
-history_output_loc=f"{root_dir}\\7. History"
-db_meta_csv = image_db_meta_file
-invariant_dir = invariant_domain_output_dir
-filter_distance_threshold=10
-max_no_of_frames = 4
+train_invariant_dir = f"{root_dir}\\5. rotation_invariant\\train"
+test_invariant_dir = f"{root_dir}\\5. rotation_invariant\\test"
+val_invariant_dir = f"{root_dir}\\5. rotation_invariant\\val"
+to_eval_dir = f"{root_dir}\\5. rotation_invariant\\train"
+# no_of_candidates=50
+# frechet_distance_threshold=10
+#
+# # Step9 : History Model
+# history_output_loc=f"{root_dir}\\7. History"
+# db_meta_csv = image_db_meta_file
+# invariant_dir = invariant_domain_output_dir
+# filter_distance_threshold=10
+# max_no_of_frames = 4

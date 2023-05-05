@@ -37,12 +37,12 @@ if __name__ == "__main__":
         domain_convertor.make_time_invariant()
 
     if 6 in steps:
-        generate_imagedb = DBManager(config)
-        generate_imagedb.generateImageDB()
+        domain_convertor = DomainConverter(config)
+        domain_convertor.make_rotation_invariant()
 
     if 7 in steps:
-        generate_imagedb = DBManager(config)
-        generate_imagedb.buildKDTree()
+        generate_db = DBManager(config)
+        generate_db.buildKDTree()
 
     if 8 in steps:
         evaluator = Evaluator(config)
