@@ -85,7 +85,7 @@ class DBManager:
                     y = window[:, 2]
 
 
-                    plt.plot(x, y, linestyle='-')
+                    plt.plot(x, y,linewidth=10, linestyle='-')
                     plt.axis('off')
                     plt.savefig(image_loc, dpi=40)
                     plt.clf()
@@ -152,8 +152,3 @@ class DBManager:
         with open(self.conf.kdtree_tags_loc, "wb") as f:
             pickle.dump(tags, f)
 
-
-# TODO
-# -- IMAGE DB ONLY PROCESS GROUND TRUTH
-# -- INVARIANT MAKE FOR GROUND TRUTH
-# -- IMAGE MAKE FOR GROUND TRUTH

@@ -66,14 +66,13 @@ segment_length = 0.1
 # Step6 : Image DB Generate
 image_db_loc = f"{root_dir}\\5. imageDB"
 image_db_meta_file = f"{root_dir}\\image_db_meta_file.csv"
-window_size = 150
-step_size = 50
+window_size = 400
+step_size = 150
 
 # Step7 : Build KDTree
 image_db_loc_kdtree = f"{root_dir}\\5. imageDB\\db"
 kdtree_features_loc = f"{root_dir}\\kdtree_features.pickle"
 kdtree_tags_loc = f"{root_dir}\\kdtree_tags.pickle"
-
 
 # Step8 : Eval Tune
 train_invariant_dir = f"{root_dir}\\4. invariant\\train"

@@ -47,6 +47,7 @@ if __name__ == "__main__":
     if 8 in steps:
         evaluator = Evaluator(config)
         evaluator.evaluate()
+
     # if 8 in steps:
     #     storer=DataStorer(config)
     #     #storer.process(config.train_invariant_dir,"train")

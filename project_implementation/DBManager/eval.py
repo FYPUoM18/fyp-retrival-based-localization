@@ -84,6 +84,7 @@ class Evaluator:
         ccount=0
         ctraj_dist=0
         ck=0
+        ks=[]
         dbmanager = DBManager(config)
         image_files=os.listdir(self.conf.to_eval_dir)
         random.shuffle(image_files)
@@ -141,6 +142,7 @@ class Evaluator:
                     # plt.show()
                     ccount+=1
                     ck+=i
+                    ks.append(i)
                     ctraj_dist+=traj_dist
                     print("K:",i)
                     print("Traj Dist",traj_dist)
@@ -148,7 +150,19 @@ class Evaluator:
                     break
 
 
+
             print("Processed : {} / {}, Current Acc : {} %".format(count,len(image_files),passed*100/count))
+
+        unique_Ks, counts = np.unique(ks, return_counts=True)
+        cumulative_counts = np.cumsum(counts)
+        total_counts = cumulative_counts[-1]
+        cumulative_probabilities = cumulative_counts / total_counts
+
+        # Plot the cumulative distribution
+        plt.plot(unique_Ks, cumulative_probabilities)
+        plt.xlabel('Ks')
+        plt.ylabel('Cumulative probability')
+        plt.show()
 
         print()
         print("Avg Traj Dist:",ctraj_dist/ccount)
