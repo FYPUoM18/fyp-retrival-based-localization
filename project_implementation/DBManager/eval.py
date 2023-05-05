@@ -126,7 +126,7 @@ class Evaluator:
                 #print(expected_real_loc[-1])
 
                 # traj_dist=self.frechet_distance(expected_real_loc,predicted_real_loc)
-                traj_dist = np.sum(cdist(expected_real_loc,predicted_real_loc))
+                traj_dist = self.getDTW(expected_real_loc,predicted_real_loc) #np.sum(cdist(expected_real_loc,predicted_real_loc))
                 if traj_dist<=config.distance_threshold :
                     # fig, ax = plt.subplots(figsize=(5, 5))
                     #

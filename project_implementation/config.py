@@ -82,8 +82,8 @@ train_invariant_dir = f"{root_dir}\\4. invariant\\train"
 test_invariant_dir = f"{root_dir}\\4. invariant\\test"
 val_invariant_dir = f"{root_dir}\\4. invariant\\val"
 to_eval_dir = f"{root_dir}\\5. imageDB\\test"
-no_of_candidates=10
-distance_threshold=3000000
+no_of_candidates=5
+distance_threshold=10000
 
 # Step10 : History Model
 history_output_loc=f"{root_dir}\\7. History"

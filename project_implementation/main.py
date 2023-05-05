@@ -59,7 +59,7 @@ if __name__ == "__main__":
     #     storer.process(config.test_invariant_dir, "test")
     #     storer.process(config.val_invariant_dir, "val")
 
-    if 9 in steps:
+    if 10 in steps:
         # LSTM_MODEL=LSTM(config)
         # LSTM_MODEL.train()
         historyModel=HistoryModel(config)
