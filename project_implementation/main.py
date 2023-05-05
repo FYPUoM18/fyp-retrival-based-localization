@@ -9,6 +9,7 @@ from traj_visualizer.traj_visualizer import TrajVisualizer
 from history.HistoryModel import HistoryModel
 from history.DataStorer import DataStorer
 from history.LSTM import LSTM
+from domain_mapper.TransferModel import Model
 
 steps = config.steps
 
@@ -40,11 +41,15 @@ if __name__ == "__main__":
         generate_imagedb = DBManager(config)
         generate_imagedb.generateImageDB()
 
-    if 7 in steps:
+    # if 7 in steps:
+    #     contrastive_model = Model(config)
+    #     contrastive_model.train_and_test_contrastive_inception_v3()
+
+    if 8 in steps:
         generate_imagedb = DBManager(config)
         generate_imagedb.buildKDTree()
 
-    if 8 in steps:
+    if 9 in steps:
         evaluator = Evaluator(config)
         evaluator.evaluate()
 

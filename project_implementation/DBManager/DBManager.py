@@ -17,7 +17,9 @@ class DBManager:
 
     def __init__(self, conf):
         self.conf = conf
-        self.model = models.inception_v3(pretrained=True)
+        # self.model = models.inception_v3(pretrained=True)
+        # self.model.eval()
+        self.model = models.vgg19(pretrained=True).features
         self.model.eval()
 
     def generateImageDB(self):
@@ -94,12 +96,11 @@ class DBManager:
         np.savetxt(self.conf.image_db_meta_file, csv_data, delimiter=",", fmt='%s')
         print("Save DB Info")
 
-    def extract_features(self,img):
-
+    def extract_features(self, img):
         img = img.convert("RGB")
         transform = transforms.Compose([
-            transforms.Resize(299),
-            transforms.CenterCrop(299),
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
@@ -111,6 +112,7 @@ class DBManager:
         features = features.detach().numpy()
         features = np.ravel(features)
         return features
+
 
     # Define function to extract features from a list of images using multiple processes
     def extract_features_all(self, images):
