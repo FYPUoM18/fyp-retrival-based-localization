@@ -97,6 +97,7 @@ class Evaluator:
 
             feature = dbmanager.extract_features(pil_img)
             img_dist, ind = tree.query(feature,k=config.no_of_candidates)
+            ispassed=False
             for i in range(len(ind)):
                 best_image_name = tags[ind[i]]
                 best_img_loc = osp.join(self.conf.image_db_loc_kdtree, best_image_name)
@@ -145,9 +146,39 @@ class Evaluator:
                     ks.append(i)
                     ctraj_dist+=traj_dist
                     print("K:",i)
-                    print("Traj Dist",traj_dist)
+
                     passed+=1
+                    ispassed=True
                     break
+
+
+            if not ispassed:
+                ks.append(100)
+                ###
+            print("Traj Dist", traj_dist)
+            print("Is Passed :",ispassed)
+            # real loc scatter 1
+            # predicted loc scatter 1
+            # ronin plot 2
+            fig, ax = plt.subplots(3, 1, figsize=(8, 10))
+
+            ax[0].imshow(pil_img)
+            ax[0].set_title('Input RoNIN Image')
+
+            ax[1].imshow(pil_img_best_match)
+            ax[1].set_title('Best Match RoNIN Image')
+
+            ax[2].set_xlim([0, 60])
+            ax[2].set_ylim([0, 150])
+            ax[2].scatter(expected_real_loc[:,0], expected_real_loc[:,1],color="red")
+            ax[2].scatter(predicted_real_loc[:, 0], predicted_real_loc[:, 1], color="blue")
+            ax[2].set_title('Expected vs Predicted Real Location')
+
+            plt.show()
+
+
+
+
 
 
 
