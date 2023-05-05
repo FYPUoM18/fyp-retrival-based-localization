@@ -96,10 +96,11 @@ class Evaluator:
             pil_img = Image.open(image_loc)
 
             feature = dbmanager.extract_features(pil_img)
-            img_dist, ind = tree.query(feature,k=config.no_of_candidates)
+            # img_dist, ind = tree.query(feature,k=config.no_of_candidates)
+            img_dist, ind = tree.query(feature, k=1)
             ispassed=False
-            for i in range(len(ind)):
-                best_image_name = tags[ind[i]]
+            for i in range(len([ind])):
+                best_image_name = tags[ind]
                 best_img_loc = osp.join(self.conf.image_db_loc_kdtree, best_image_name)
                 pil_img_best_match = Image.open(best_img_loc)
 
@@ -170,8 +171,8 @@ class Evaluator:
 
             ax[2].set_xlim([0, 60])
             ax[2].set_ylim([0, 150])
-            ax[2].scatter(expected_real_loc[:,0], expected_real_loc[:,1],color="red")
-            ax[2].scatter(predicted_real_loc[:, 0], predicted_real_loc[:, 1], color="blue")
+            ax[2].scatter(expected_real_loc[:,0], expected_real_loc[:,1],color="red",s=0.1)
+            ax[2].scatter(predicted_real_loc[:, 0], predicted_real_loc[:, 1], color="blue",s=0.1)
             ax[2].set_title('Expected vs Predicted Real Location')
 
             plt.show()
