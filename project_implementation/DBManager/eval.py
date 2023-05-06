@@ -3,6 +3,7 @@ import math
 import os
 import pickle
 import random
+import uuid
 from os import path as osp
 from PIL import Image
 import numpy as np
@@ -99,6 +100,23 @@ class Evaluator:
             img_dist, ind = tree.query(feature,k=config.no_of_candidates)
             # img_dist, ind = tree.query(feature, k=1)
             ispassed=False
+
+            fig, ax = plt.subplots(1, 5, figsize=(15, 3))
+            #
+            # ax[0].imshow(pil_img)
+            # ax[0].set_title('Input RoNIN Image')
+            #
+            # ax[1].imshow(pil_img_best_match)
+            # ax[1].set_title('Best Match RoNIN Image')
+            #
+            # ax[2].set_xlim([0, 60])
+            # ax[2].set_ylim([0, 150])
+            # ax[2].scatter(expected_real_loc[:,0], expected_real_loc[:,1],color="red",s=0.1)
+            # ax[2].scatter(predicted_real_loc[:, 0], predicted_real_loc[:, 1], color="blue",s=0.1)
+            # ax[2].set_title('Expected vs Predicted Real Location')
+            #
+            # plt.show()
+
             for i in range(len(ind)):
                 best_image_name = tags[ind[i]]
                 best_img_loc = osp.join(self.conf.image_db_loc_kdtree, best_image_name)
@@ -121,13 +139,16 @@ class Evaluator:
 
                 expected_real_loc = self.fetchRealLocs(image_name)
                 predicted_real_loc = self.fetchRealLocs(best_image_name)
-
+                ax[i].scatter(expected_real_loc[:, 0], expected_real_loc[:, 1], color="red", s=0.1)
+                ax[i].scatter(predicted_real_loc[:, 0], predicted_real_loc[:, 1], color="blue", s=0.1)
+                ax[i].set_xlim([0, 60])
+                ax[i].set_ylim([0, 150])
                 #print(expected_real_loc[0])
                 #print(expected_real_loc[-1])
 
                 # traj_dist=self.frechet_distance(expected_real_loc,predicted_real_loc)
                 traj_dist = self.getDTW(expected_real_loc,predicted_real_loc) #np.sum(cdist(expected_real_loc,predicted_real_loc))
-                if traj_dist<=config.distance_threshold :
+                if False :
                     # fig, ax = plt.subplots(figsize=(5, 5))
                     #
                     # ax.scatter(x=expected_real_loc[:, 0], y=expected_real_loc[:, 1],s=0.1,  c="blue", label="Pred")
@@ -152,8 +173,8 @@ class Evaluator:
                     passed+=1
                     ispassed=True
                     break
-
-
+            fig.savefig(str(uuid.uuid4()))
+            # plt.show()
             if not ispassed:
                 ks.append(100)
                 ###

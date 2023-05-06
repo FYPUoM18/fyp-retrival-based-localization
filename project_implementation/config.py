@@ -81,7 +81,7 @@ kdtree_tags_loc = f"{root_dir}\\kdtree_tags.pickle"
 train_invariant_dir = f"{root_dir}\\4. invariant\\train"
 test_invariant_dir = f"{root_dir}\\4. invariant\\test"
 val_invariant_dir = f"{root_dir}\\4. invariant\\val"
-to_eval_dir = f"{root_dir}\\5. imageDB\\val"
+to_eval_dir = f"{root_dir}\\5. imageDB\\test"
 no_of_candidates=5
 distance_threshold=10000
 
