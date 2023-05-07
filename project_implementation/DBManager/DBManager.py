@@ -21,8 +21,8 @@ class DBManager:
         # self.model.eval()
         # self.model = models.vgg19(pretrained=True).features
         # self.model.eval()
-        self.vgg = models.vgg19(pretrained=True)
-        self.model = ContrastiveModel(self.vgg.features)
+        # self.vgg = models.vgg19(pretrained=True)
+        self.model = ContrastiveModel()
         self.model.load_state_dict(torch.load(self.conf.model_path, map_location=torch.device('cpu')))
         self.model.eval()
 

@@ -14,14 +14,25 @@ import torchvision.transforms as transforms
 
 
 class ContrastiveModel(nn.Module):
-    def __init__(self, encoder):
+    def __init__(self):
         super(ContrastiveModel, self).__init__()
-        self.encoder = encoder
+
+        # Load Pretrained VGG19 features
+        self.vgg = models.vgg19(pretrained=True).features
+        # Freeze all VGG19 layers
+        for param in self.vgg.parameters():
+            param.requires_grad = False
+
+        # Add new layers
+        self.conv = nn.Conv2d(512, 512, kernel_size=7, stride=1, padding=0)
+        self.relu = nn.ReLU(inplace=True)
 
     def forward_once(self, x):
-        h = self.encoder(x)
-        z = h.view(h.size(0), -1)
-        return z
+        x = self.vgg(x)
+        x = self.conv(x)
+        x = self.relu(x)
+        x = x.view(x.size(0), -1)
+        return x
 
     def forward(self, x1, x2):
         z1 = self.forward_once(x1)
