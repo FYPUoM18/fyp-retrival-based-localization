@@ -69,15 +69,13 @@ image_db_meta_file = f"{root_dir}\\image_db_meta_file.csv"
 window_size = 400
 step_size = 150
 
-# Step7
+# Step7 : Build KDTree
 model_path = f"{root_dir}\\model.pt"
-
-# Step8 : Build KDTree
 image_db_loc_kdtree = f"{root_dir}\\5. imageDB\\db"
 kdtree_features_loc = f"{root_dir}\\kdtree_features.pickle"
 kdtree_tags_loc = f"{root_dir}\\kdtree_tags.pickle"
 
-# Step9 : Eval Tune
+# Step8 : Eval Tune
 train_invariant_dir = f"{root_dir}\\4. invariant\\train"
 test_invariant_dir = f"{root_dir}\\4. invariant\\test"
 val_invariant_dir = f"{root_dir}\\4. invariant\\val"
@@ -85,7 +83,7 @@ to_eval_dir = f"{root_dir}\\5. imageDB\\test"
 no_of_candidates=5
 distance_threshold=10000
 
-# Step10 : History Model
+# Step9 : History Model
 history_output_loc=f"{root_dir}\\7. History"
 db_meta_csv = image_db_meta_file
 invariant_dir = invariant_domain_output_dir
