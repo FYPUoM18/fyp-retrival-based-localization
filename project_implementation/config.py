@@ -1,5 +1,5 @@
 # Steps
-steps = [9]
+steps = [7]
 
 # Building Params
 x_lim=60
@@ -70,7 +70,8 @@ window_size = 400
 step_size = 150
 
 # Step7 : Build KDTree
-model_path = f"{root_dir}\\model.pt"
+model_path = f"{root_dir}\\transfer-model\\modelstate.pth"
+MNIST_arr = f"{root_dir}\\transfer-model\\all_pairs.arr"
 image_db_loc_kdtree = f"{root_dir}\\5. imageDB\\db"
 kdtree_features_loc = f"{root_dir}\\kdtree_features.pickle"
 kdtree_tags_loc = f"{root_dir}\\kdtree_tags.pickle"

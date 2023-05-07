@@ -6,7 +6,7 @@ from multiprocessing import Pool
 import torch
 import torchvision.models as models
 import torchvision.transforms as transforms
-
+from domain_mapper.TransferModel import ContrastiveModel
 from os import path as osp
 from PIL import Image
 from matplotlib import pyplot as plt
@@ -19,7 +19,11 @@ class DBManager:
         self.conf = conf
         # self.model = models.inception_v3(pretrained=True)
         # self.model.eval()
-        self.model = models.vgg19(pretrained=True).features
+        # self.model = models.vgg19(pretrained=True).features
+        # self.model.eval()
+        self.vgg = models.vgg19(pretrained=True)
+        self.model = ContrastiveModel(self.vgg.features)
+        self.model.load_state_dict(torch.load(self.conf.model_path, map_location=torch.device('cpu')))
         self.model.eval()
 
     def generateImageDB(self):
@@ -108,7 +112,7 @@ class DBManager:
         img = transform(img)
         img = img.unsqueeze(0)
         with torch.no_grad():
-            features = self.model(img)
+            features = self.model.forward_once(img)
         features = features.detach().numpy()
         features = np.ravel(features)
         return features

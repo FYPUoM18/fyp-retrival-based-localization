@@ -9,7 +9,6 @@ from traj_visualizer.traj_visualizer import TrajVisualizer
 from history.HistoryModel import HistoryModel
 from history.DataStorer import DataStorer
 from history.LSTM import LSTM
-from domain_mapper.TransferModel import Model
 
 steps = config.steps
 
