@@ -1,5 +1,5 @@
 # Steps
-steps = [7]
+steps = [8]
 
 # Building Params
 x_lim=60
