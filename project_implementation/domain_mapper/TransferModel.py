@@ -24,13 +24,13 @@ class ContrastiveModel(nn.Module):
             param.requires_grad = False
 
         # Add new layers
-        self.conv = nn.Conv2d(512, 512, kernel_size=7, stride=1, padding=0)
-        self.relu = nn.ReLU(inplace=True)
+        self.conv1 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=0)
+        self.relu1 = nn.ReLU(inplace=True)
 
     def forward_once(self, x):
         x = self.vgg(x)
-        x = self.conv(x)
-        x = self.relu(x)
+        x = self.conv1(x)
+        x = self.relu1(x)
         x = x.view(x.size(0), -1)
         return x
 
