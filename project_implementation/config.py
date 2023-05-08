@@ -69,9 +69,13 @@ image_db_meta_file = f"{root_dir}\\image_db_meta_file.csv"
 window_size = 400
 step_size = 150
 
+# # Step : Train Contrastive
+# model_path = f"{root_dir}\\transfer-model\\modelstate.pth"
+# MNIST_arr = f"{root_dir}\\transfer-model\\all_pairs.arr"
+# pair_db_loc = f"{root_dir}\\pair-db"
+# distance_threshold_filter = 5000
+
 # Step7 : Build KDTree
-model_path = f"{root_dir}\\transfer-model\\modelstate.pth"
-MNIST_arr = f"{root_dir}\\transfer-model\\all_pairs.arr"
 image_db_loc_kdtree = f"{root_dir}\\5. imageDB\\db"
 kdtree_features_loc = f"{root_dir}\\kdtree_features.pickle"
 kdtree_tags_loc = f"{root_dir}\\kdtree_tags.pickle"

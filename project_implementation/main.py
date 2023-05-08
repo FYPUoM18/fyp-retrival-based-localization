@@ -40,6 +40,12 @@ if __name__ == "__main__":
         generate_imagedb = DBManager(config)
         generate_imagedb.generateImageDB()
 
+    # if 7 in steps:
+    #     domain_convertor = DomainConverter(config)
+    #     domain_convertor.generatePairs("train", 100)
+    #     domain_convertor.generatePairs("test", 50)
+    #     domain_convertor.generatePairs("val", 50)
+
     if 7 in steps:
         generate_imagedb = DBManager(config)
         generate_imagedb.buildKDTree()

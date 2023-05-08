@@ -19,12 +19,12 @@ class DBManager:
         self.conf = conf
         # self.model = models.inception_v3(pretrained=True)
         # self.model.eval()
-        # self.model = models.vgg19(pretrained=True).features
-        # self.model.eval()
-        # self.vgg = models.vgg19(pretrained=True)
-        self.model = ContrastiveModel()
-        self.model.load_state_dict(torch.load(self.conf.model_path, map_location=torch.device('cpu')))
+        self.model = models.vgg19(pretrained=True).features
         self.model.eval()
+        # self.vgg = models.vgg19(pretrained=True)
+        # self.model = ContrastiveModel()
+        # self.model.load_state_dict(torch.load(self.conf.model_path, map_location=torch.device('cpu')))
+        # self.model.eval()
 
     def generateImageDB(self):
 
@@ -112,7 +112,7 @@ class DBManager:
         img = transform(img)
         img = img.unsqueeze(0)
         with torch.no_grad():
-            features = self.model.forward_once(img)
+            features = self.model(img)
         features = features.detach().numpy()
         features = np.ravel(features)
         return features
