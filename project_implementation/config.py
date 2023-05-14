@@ -1,11 +1,10 @@
 # Steps
-steps = [8]
+steps = []
 
 # Building Params
 x_lim=60
 y_lim=150
-# x_lim=15
-# y_lim=40
+
 # Root Dir
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\3. set - through-ronin-custom-contrastive"
 
@@ -69,12 +68,6 @@ image_db_meta_file = f"{root_dir}\\image_db_meta_file.csv"
 window_size = 400
 step_size = 150
 
-# # Step : Train Contrastive
-# model_path = f"{root_dir}\\transfer-model\\modelstate.pth"
-# MNIST_arr = f"{root_dir}\\transfer-model\\all_pairs.arr"
-# pair_db_loc = f"{root_dir}\\pair-db"
-# distance_threshold_filter = 5000
-
 # Step7 : Build KDTree
 image_db_loc_kdtree = f"{root_dir}\\5. imageDB\\db"
 kdtree_features_loc = f"{root_dir}\\kdtree_features.pickle"
@@ -86,11 +79,3 @@ test_invariant_dir = f"{root_dir}\\4. invariant\\test"
 val_invariant_dir = f"{root_dir}\\4. invariant\\val"
 to_eval_dir = f"{root_dir}\\5. imageDB\\val"
 no_of_candidates=5
-distance_threshold=10000
-
-# Step9 : History Model
-history_output_loc=f"{root_dir}\\7. History"
-db_meta_csv = image_db_meta_file
-invariant_dir = invariant_domain_output_dir
-filter_distance_threshold=10
-max_no_of_frames = 4
