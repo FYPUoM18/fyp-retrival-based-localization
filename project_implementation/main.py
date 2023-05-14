@@ -1,4 +1,4 @@
-import config
+from Configurations.Config import Config
 from DBManager.DBManager import DBManager
 from DBManager.eval import Evaluator
 from compile_dataset.compiler import Compiler
@@ -10,6 +10,8 @@ from history.HistoryModel import HistoryModel
 from history.DataStorer import DataStorer
 from history.LSTM import LSTM
 
+root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\building_unib"
+config = Config(root_dir)
 steps = config.steps
 
 if __name__ == "__main__":
@@ -47,3 +49,5 @@ if __name__ == "__main__":
     if 8 in steps:
         evaluator = Evaluator(config)
         evaluator.evaluate()
+
+    config.save_config_to_json()
