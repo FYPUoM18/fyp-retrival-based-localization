@@ -83,6 +83,9 @@ class Config:
         self.to_eval_dir = f"{self.root_dir}\\5. imageDB\\db"
         self.no_of_candidates = 5
 
+        # Filtering
+        self.merge_threshold = 700
+
     def save_config_to_json(self):
         with open(f"{self.root_dir}\\config.json", 'w') as f:
             json.dump(self.__dict__, f)

@@ -86,6 +86,9 @@ class Evaluator:
             shutil.rmtree(path)
         os.mkdir(path)
 
+        expected_locs = []
+        layers = []
+
         for image_file in image_files:
 
             image_name = image_file
@@ -94,25 +97,28 @@ class Evaluator:
 
             feature = dbmanager.extract_features(pil_img)
             img_dist, ind = tree.query(feature,k=new_data_config.no_of_candidates)
+            expected_real_loc = self.fetchRealLocs(image_name, new_data_config)
+            expected_locs.append(expected_real_loc)
 
             fig, ax = plt.subplots(1, 5)
-            locs = []
+            layer = []
             for i in range(len(ind)):
 
                 best_image_name = tags[ind[i]]
                 best_img_loc = osp.join(building_data_config.image_db_loc_kdtree, best_image_name)
                 pil_img_best_match = Image.open(best_img_loc)
 
-                expected_real_loc = self.fetchRealLocs(image_name,new_data_config)
                 predicted_real_loc = self.fetchRealLocs(best_image_name,building_data_config)
                 ax[i].scatter(expected_real_loc[:, 0], expected_real_loc[:, 1], color="red", s=0.1)
                 ax[i].scatter(predicted_real_loc[:, 0], predicted_real_loc[:, 1], color="blue", s=0.1)
                 ax[i].set_xlim([0, building_data_config.x_lim])
                 ax[i].set_ylim([0, building_data_config.y_lim])
 
-                locs.append(predicted_real_loc)
+                layer.append(predicted_real_loc)
 
 
             fig.savefig(path+"\\"+str(uuid.uuid4()))
             plt.clf()
-        return locs
+            layers.append(layer)
+
+        return layers,expected_locs
