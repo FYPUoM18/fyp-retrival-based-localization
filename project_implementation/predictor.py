@@ -167,7 +167,7 @@ class Predictor:
             plt.clf()
 
 
-samples = 10
+samples = 100
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs"
 data_dir = f"{root_dir}\\building_unib\\nilocdata-subset\\unib\\unseen"
 prediction_dir = f"{root_dir}\\predictions"
@@ -190,6 +190,8 @@ for sample in range(samples):
 
         # Generate Directory
         outname = uuid.uuid4()
+        freq = 200
+        secs = 90
         csv_dir = f"{prediction_dir}\\{outname}\\1. csv_data\\db\\{uuid.uuid4()}"
         os.makedirs(csv_dir)
 
@@ -206,7 +208,7 @@ for sample in range(samples):
                 # Generate Random Sub Window
                 if sub_window is None:
                     length = len(np_data)
-                    no_of_dpoints = 90 * 200
+                    no_of_dpoints = freq*secs
                     original_list = list(range(length))
                     start_index = random.randint(0, length - no_of_dpoints)
                     sub_window = original_list[start_index:start_index + no_of_dpoints]
@@ -219,7 +221,7 @@ for sample in range(samples):
                     continue
                 np.savetxt(osp.join(csv_dir, filename + ".txt"), np_data, delimiter=" ")
 
-        predictor = Predictor(outname,"building_unib",200,90)
+        predictor = Predictor(outname,"building_unib",freq,secs)
         predictor.generate_config()
         predictor.getRoNINTrajectory()
         predictor.visualizeTrajectory()

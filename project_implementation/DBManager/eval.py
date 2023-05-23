@@ -63,6 +63,23 @@ class Evaluator:
         distance, path = fastdtw(nplist1, nplist2, dist=euclidean)
         return distance
 
+    def calculate_ate(self,expected_locs, predicted_real_loc):
+        # Calculate Euclidean distances between corresponding points
+        distances = np.linalg.norm(expected_locs - predicted_real_loc, axis=1)
+
+        # Calculate ATE
+        ate = np.mean(distances)
+
+        return ate
+
+    def err_dst(self,arr1,i,arr2,j):
+        a_row = arr1[i]
+        b_row = arr2[j]
+
+        # Calculate the distance using the Euclidean distance formula
+        distance = np.sqrt((b_row[0] - a_row[0]) ** 2 + (b_row[1] - a_row[1]) ** 2)
+
+        return distance
 
     def evaluate(self,new_data_config,building_data_config):
         print("Started Evaluating")
@@ -102,6 +119,9 @@ class Evaluator:
 
             fig, ax = plt.subplots(1, 5)
             layer = []
+            figname = str(uuid.uuid4())
+            ates=[str(figname)]
+            errs = [str(figname)]
             for i in range(len(ind)):
 
                 best_image_name = tags[ind[i]]
@@ -114,10 +134,31 @@ class Evaluator:
                 ax[i].set_xlim([0, building_data_config.x_lim])
                 ax[i].set_ylim([0, building_data_config.y_lim])
 
+                ate_1 = self.calculate_ate(expected_real_loc,predicted_real_loc)
+                ate_2 = self.calculate_ate(expected_real_loc, predicted_real_loc[::-1])
+
+                err1 = self.err_dst(expected_real_loc,0,predicted_real_loc,0)
+                err2 = self.err_dst(expected_real_loc,0,predicted_real_loc,-1)
+                err3 = self.err_dst(expected_real_loc,-1,predicted_real_loc,0)
+                err4 = self.err_dst(expected_real_loc,-1,predicted_real_loc,-1)
+
+                ate = min([ate_1,ate_2])
+                err = min([err1,err2,err3,err4])
+                ax[i].text(0.25, 0.95, f'ATE: {ate:.2f}', transform=ax[i].transAxes, ha='left', va='top')
+                ax[i].text(0.15, 0.95, f'ERR: {err:.2f}', transform=ax[i].transAxes, ha='left', va='bottom')
+
+                ates.append(str(ate))
+                errs.append(str(err))
                 layer.append(predicted_real_loc)
 
+            with open(new_data_config.to_ates_csv, 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(ates)
+            with open(new_data_config.to_err_csv, 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(errs)
 
-            fig.savefig(path+"\\"+str(uuid.uuid4()))
+            fig.savefig(path+"\\"+str(figname))
             plt.clf()
             layers.append(layer)
 
