@@ -62,50 +62,58 @@ class DomainConverter:
         # Skip Header
         coords = np.array(data[1:, [0, 1]])
 
-        # Separate the latitude and longitude coordinates into separate 1D arrays
-        lat_coords = coords[:, 0]
-        lon_coords = coords[:, 1]
+        x = coords[:, 0]
+        y = coords[:, 1]
 
-        # Interpolate the latitude and longitude coordinates
-        interp_func_lat = interp1d(np.arange(len(lat_coords)), lat_coords, kind='cubic')
-        interp_func_lon = interp1d(np.arange(len(lon_coords)), lon_coords, kind='cubic')
+        perturbation = 1e-10
+        x = x + np.arange(len(x)) * perturbation
+        y = y + np.arange(len(y)) * perturbation
 
-        # Calculate the length of the curve
-        curve_length = np.sum(np.sqrt(np.sum(np.diff(coords, axis=0) ** 2, axis=1)))
+        distances = np.cumsum(np.sqrt(np.diff(x) ** 2 + np.diff(y) ** 2))
+        distances = np.insert(distances, 0, 0)
+        total_length = distances[-1]
+        num_points = int(total_length / self.conf.segment_length) + 1
+        f = interp1d(distances, x, kind='cubic')
+        distances_new = np.linspace(0, total_length, num_points)
+        x_new = f(distances_new)
+        y_new = interp1d(distances, y, kind='cubic')(distances_new)
 
-        # Divide the curve into segments of segment_length
-        num_segments = int(curve_length / segment_length)
-        t = np.linspace(0, len(lat_coords) - 1, num_segments)
-        lat = interp_func_lat(t)
-        lon = interp_func_lon(t)
+        segments = np.column_stack((x_new, y_new))
 
         # Combine the latitude and longitude coordinates into a single array
-        segments = np.column_stack((lat, lon))
+        # segments = np.column_stack((lat, lon))
 
-        return num_segments, segments
+        return num_points, segments
 
     def make_time_invariant_ground(self, data, num_segments):
         # Input coordinate array (latitude, longitude)
         # Skip Header
         coords = np.array(data[1:, [2, 3]])
 
-        # Separate the latitude and longitude coordinates into separate 1D arrays
-        lat_coords = coords[:, 0]
-        lon_coords = coords[:, 1]
+        x = coords[:, 0]
+        y = coords[:, 1]
 
-        # Interpolate the latitude and longitude coordinates
-        interp_func_lat = interp1d(np.arange(len(lat_coords)), lat_coords, kind='cubic')
-        interp_func_lon = interp1d(np.arange(len(lon_coords)), lon_coords, kind='cubic')
+        perturbation = 1e-10
+        x = x + np.arange(len(x)) * perturbation
+        y = y + np.arange(len(y)) * perturbation
 
-        # Divide the curve into segments of segment_length
-        t = np.linspace(0, len(lat_coords) - 1, num_segments)
-        lat = interp_func_lat(t)
-        lon = interp_func_lon(t)
+        distances = np.cumsum(np.sqrt(np.diff(x) ** 2 + np.diff(y) ** 2))
+        distances = np.insert(distances, 0, 0)
+        total_length = distances[-1]
+        num_points = num_segments #int(total_length / self.conf.segment_length) + 1
+        f = interp1d(distances, x, kind='cubic')
+        distances_new = np.linspace(0, total_length, num_points)
+        x_new = f(distances_new)
+        y_new = interp1d(distances, y, kind='cubic')(distances_new)
+
+        segments = np.column_stack((x_new, y_new))
 
         # Combine the latitude and longitude coordinates into a single array
-        segments = np.column_stack((lat, lon))
+        # segments = np.column_stack((lat, lon))
 
-        return segments
+        return num_points, segments
+
+        # return segments
 
     def cal_angular_code(self, ronin):
         codes = [np.NaN]
@@ -161,9 +169,12 @@ class DomainConverter:
                     data = np.genfromtxt(csv_path, delimiter=',')
                     segment_length = self.conf.segment_length
                     num_segments, time_invariant_ronin = self.make_time_invariant_ronin(data, segment_length)
-                    time_invariant_ground = self.make_time_invariant_ground(data, num_segments)
+                    _, time_invariant_ground = self.make_time_invariant_ground(data, num_segments)
                     segments_ids = [id for id in range(num_segments)]
 
+                    # print(time_invariant_ronin.shape)
+                    # print(time_invariant_ground.shape)
+                    # print(num_segments)
                     # Combine All
                     combined = np.column_stack((segments_ids, time_invariant_ronin, time_invariant_ground))[1:-1, :]
 
@@ -174,7 +185,7 @@ class DomainConverter:
 
                     plt.scatter(x=x, y=y, s=0.1, linewidths=0.1, c="blue", label="RoNIN")
                     plt.axis('off')
-                    plt.savefig(img_path, dpi=1000)
+                    plt.savefig(img_path, dpi=100)
                     plt.clf()
 
                     # Save CSV
