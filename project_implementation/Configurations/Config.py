@@ -3,7 +3,7 @@ import json
 
 class Config:
     def __init__(self,root_dir):
-        self.steps = []
+        self.steps = [6]
 
         # Building Params
         self.x_lim = 60
@@ -50,7 +50,7 @@ class Config:
         }
         # Step2: Generate Train/Test/Val From HDF5
         self.freq = 200  # Dpoints Per Sec
-        self.no_of_sec_per_split = 45  # Windows Size
+        self.no_of_sec_per_split = 120 #45  # Windows Size
         self.train_test_val_meta_file = f"{self.root_dir}\\train_test_val_meta.csv"
 
         # Step3: Get RoNIN Trajectory
@@ -68,8 +68,8 @@ class Config:
         # Step6 : Image DB Generate
         self.image_db_loc = f"{self.root_dir}\\5. imageDB"
         self.image_db_meta_file = f"{self.root_dir}\\image_db_meta_file.csv"
-        self.window_size = 400
-        self.step_size = 150
+        self.window_size = 1000 #400
+        self.step_size = 450 #150
 
         # Step7 : Build KDTree
         self.image_db_loc_kdtree = f"{self.root_dir}\\5. imageDB\\db"

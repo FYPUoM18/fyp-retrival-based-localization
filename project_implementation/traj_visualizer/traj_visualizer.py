@@ -49,13 +49,13 @@ class TrajVisualizer:
 
             plt.scatter(x=x, y=y, s=0.01, linewidths=0.01, c="blue", label="RoNIN")
             plt.axis('off')
-            plt.savefig(ronin_img_path, dpi=1000)
+            plt.savefig(ronin_img_path, dpi=100)
             plt.clf()
             print("Saved", ronin_img_path)
 
             plt.scatter(x=real_x, y=real_y, s=0.01, linewidths=0.01, c="red",label="Ground Truth")
             plt.axis('off')
-            plt.savefig(ground_img_path, dpi=1000)
+            plt.savefig(ground_img_path, dpi=100)
             plt.clf()
             print("Saved", ground_img_path)
 
@@ -90,7 +90,7 @@ class TrajVisualizer:
 
                             plt.scatter(x=ronin[:,0], y=ronin[:,1], s=0.01, linewidths=0.01, c="blue", label="RoNIN")
                             # plt.axis('off')
-                            plt.savefig(osp.join(savepath,"traj_in_db.png"), dpi=1000)
+                            plt.savefig(osp.join(savepath,"traj_in_db.png"), dpi=100)
                             plt.clf()
                             print("Added Traj In DB For :",target,otype2,file)
 

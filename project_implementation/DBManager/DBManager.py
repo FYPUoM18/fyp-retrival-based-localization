@@ -93,7 +93,7 @@ class DBManager:
 
                     plt.plot(x, y,linewidth=10, linestyle='-')
                     plt.axis('off')
-                    plt.savefig(image_loc, dpi=40)
+                    plt.savefig(image_loc, dpi=100)
                     plt.clf()
 
         print("No of failures :", len(fail_list))
