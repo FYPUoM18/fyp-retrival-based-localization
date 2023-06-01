@@ -230,5 +230,5 @@ for sample in range(samples):
         layers,expected_locs = predictor.findMatchings()
         predictor.filterMatchings(layers,expected_locs)
 
-    except:
-        pass
+    except Exception as ex:
+        print(ex)
