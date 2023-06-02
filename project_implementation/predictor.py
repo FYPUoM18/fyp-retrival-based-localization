@@ -1,9 +1,11 @@
 import copy
 import os
 import random
+import math
 import numpy as np
 import uuid
 import h5py
+import csv
 from Configurations.Config import Config
 from compile_dataset.compiler import Compiler
 from traj_visualizer.traj_visualizer import TrajVisualizer
@@ -97,39 +99,30 @@ class Predictor:
         step_size = self.building_data_config.step_size
         common_points_count = window_size - step_size
         locs = []
+
+        min_dist = float('inf')
+        selected_node_prev = None
+        selected_node_post = None
+
         for node_prev in layer_1:
             for node_post in layer_2:
 
-                # Calc Result
-                node_start = node_prev[:step_size,[0,1]]
-                node_end = node_post[common_points_count:,[0,1]]
-                node_middle_1 = node_prev[step_size:,[0,1]]
-                node_middle_2 = node_post[:common_points_count,[0,1]]
-                middle_avg = (node_middle_1 + node_middle_2) / 2
-                result = np.concatenate((node_start, middle_avg, node_end), axis=0)
+                for i in (1,-1):
+                    for j in (1,-1):
 
-                # Interpolate
-                x = result[:, 0]
-                y = result[:, 1]
+                        node_prev_updated = node_prev[::i]
+                        node_post_updated = node_post[::j]
 
-                distances = np.cumsum(np.sqrt(np.diff(x) ** 2 + np.diff(y) ** 2))
-                distances = np.insert(distances, 0, 0)
-                total_length = distances[-1]
-                num_points = int(total_length / self.building_data_config.segment_length) + 1
-                f = interp1d(distances, x, kind='cubic')
-                distances_new = np.linspace(0, total_length, num_points)
-                x_new = f(distances_new)
-                y_new = interp1d(distances, y, kind='cubic')(distances_new)
+                        node_middle_1 = node_prev_updated[step_size:, [0, 1]]
+                        node_middle_2 = node_post_updated[:common_points_count, [0, 1]]
 
-                segments = np.column_stack((x_new, y_new))
+                        dist = self.getDTW(node_middle_1,node_middle_2)
+                        if dist<min_dist:
+                            min_dist=dist
+                            selected_node_prev=node_prev_updated
+                            selected_node_post=node_post_updated
 
-                # Check If Walkable
-                if len(segments)<=self.building_data_config.merge_threshold:
-                    locs.append(segments)
-
-
-
-        return locs
+        return min_dist,selected_node_prev,selected_node_post, selected_node_post[-1]
 
     def filterMatchings(self, layers, expected_locs):
 
@@ -142,32 +135,41 @@ class Predictor:
             print("Only One Layer Is Available. Can't Do Filterings ... ")
 
         else:
-            plots = 2 if len(layers)-1<2 else len(layers)-1
-            fig, ax = plt.subplots(1,plots )
             current_layer = 0
             next_layer = 1
+            name = str(uuid.uuid4())
             while next_layer<len(layers):
                 print(f"Layer 1 : {current_layer} , Layer 2 : {next_layer}")
-                ax[current_layer].scatter(expected_locs[current_layer][:, 0], expected_locs[current_layer][:, 1], color="red", s=0.1)
-                ax[current_layer].scatter(expected_locs[next_layer][:, 0], expected_locs[next_layer][:, 1], color="red", s=0.1)
-                ax[current_layer].set_xlim([0, self.building_data_config.x_lim])
-                ax[current_layer].set_ylim([0, self.building_data_config.y_lim])
+                plt.xlim([0, self.building_data_config.x_lim])
+                plt.ylim([0, self.building_data_config.y_lim])
 
-                combined_filtered_locs = self.combineLocs(layers[current_layer],layers[next_layer])
-                colors = [mcolors.to_rgb(np.random.rand(3)) for _ in range(len(combined_filtered_locs))]
-                for loc in combined_filtered_locs:
-                    ax[current_layer].scatter(loc[:, 0], loc[:, 1], color=random.choice(colors), s=1)
+                min_dist, selected_node_prev, selected_node_post, final_loc_e = self.combineLocs([expected_locs[current_layer]],[expected_locs[next_layer]])
+                plt.scatter(selected_node_prev[:, 0], selected_node_prev[:, 1], color='red', s=1)
+                plt.scatter(selected_node_post[:, 0], selected_node_post[:, 1], color='red', s=1)
 
 
+                min_dist,selected_node_prev,selected_node_post,final_loc_p = self.combineLocs(layers[current_layer],layers[next_layer])
+                plt.scatter(selected_node_prev[:, 0], selected_node_prev[:, 1], color='green', s=1)
+                plt.scatter(selected_node_post[:, 0], selected_node_post[:, 1], color='yellow', s=1)
+
+                plt.scatter(final_loc_e[0], final_loc_e[1], color='black', s=20)
+                plt.scatter(final_loc_p[0], final_loc_p[1], color='blue', s=20)
 
                 current_layer+=1
                 next_layer+=1
 
-            fig.savefig(path + "\\" + str(uuid.uuid4()))
+                with open(self.new_data_config.to_err_csv, 'a', newline='') as csvfile:
+                    writer = csv.writer(csvfile)
+                    err = math.sqrt((final_loc_p[0] - final_loc_e[0]) ** 2 + (final_loc_p[1] - final_loc_e[1]) ** 2)
+                    writer.writerow([name, err])
+
+                break
+
+            plt.savefig(path + "\\" + name)
             plt.clf()
 
 
-samples = 10
+samples = 110
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs"
 data_dir = f"{root_dir}\\building_unib_100m\\nilocdata-subset\\unib\\unseen"
 prediction_dir = f"{root_dir}\\predictions"

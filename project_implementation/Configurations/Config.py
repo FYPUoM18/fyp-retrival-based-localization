@@ -3,7 +3,7 @@ import json
 
 class Config:
     def __init__(self,root_dir):
-        self.steps = [6,7]
+        self.steps = []
 
         # Building Params
         self.x_lim = 60
@@ -86,7 +86,7 @@ class Config:
         self.no_of_candidates = 5
 
         # Filtering
-        self.merge_threshold = 650
+        self.merge_threshold = 1200
 
     def save_config_to_json(self):
         with open(f"{self.root_dir}\\config.json", 'w') as f:
