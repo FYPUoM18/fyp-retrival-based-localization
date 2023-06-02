@@ -91,7 +91,7 @@ class DBManager:
                     y = window[:, 2]
 
 
-                    plt.plot(x, y,linewidth=10, linestyle='-')
+                    plt.plot(x, y,linewidth=5, linestyle='-')
                     plt.axis('off')
                     plt.savefig(image_loc, dpi=100)
                     plt.clf()

@@ -324,7 +324,7 @@ class Compiler:
                     f.create_group('computed')
                     f.create_dataset('computed/ronin', data=ronin_traj)
 
-            except (OSError, FileNotFoundError, TypeError) as e:
+            except Exception as e:
                 print(e)
                 fail_list.append(data)
 
@@ -338,22 +338,25 @@ class Compiler:
         folder_list = [osp.split(path)[1] for path in os.listdir(csv_dir)]
 
         for folder in folder_list:
-            root_dir = osp.join(csv_dir, folder)
-            data_list = [osp.split(path)[1] for path in os.listdir(root_dir)]
-            out_dir = osp.join(self.conf.processed_hdf5_out_dir, folder)
-            ronin_checkpoint = self.conf.ronin_checkpoint
+            try:
+                root_dir = osp.join(csv_dir, folder)
+                data_list = [osp.split(path)[1] for path in os.listdir(root_dir)]
+                out_dir = osp.join(self.conf.processed_hdf5_out_dir, folder)
+                ronin_checkpoint = self.conf.ronin_checkpoint
 
-            if os.path.exists(out_dir):
-                shutil.rmtree(out_dir)
-            os.makedirs(out_dir)
+                if os.path.exists(out_dir):
+                    shutil.rmtree(out_dir)
+                os.makedirs(out_dir)
 
-            is_nano = False
-            is_loc_available = True
-            is_gyro_shuffled = True
-            if folder == "mobile":
-                is_nano = True
-                is_loc_available = False
-                is_gyro_shuffled = False
+                is_nano = False
+                is_loc_available = True
+                is_gyro_shuffled = True
+                if folder == "mobile":
+                    is_nano = True
+                    is_loc_available = False
+                    is_gyro_shuffled = False
 
-            self.compile_unannotated_sequence(
-                root_dir, data_list, ronin_checkpoint, out_dir, is_nano, is_loc_available,is_gyro_shuffled,sample_rate)
+                self.compile_unannotated_sequence(
+                    root_dir, data_list, ronin_checkpoint, out_dir, is_nano, is_loc_available,is_gyro_shuffled,sample_rate)
+            except Exception as e:
+                print(e)

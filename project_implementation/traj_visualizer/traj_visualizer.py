@@ -79,21 +79,23 @@ class TrajVisualizer:
         with open(self.conf.train_test_val_meta_file, "r") as f:
             reader = csv.reader(f, delimiter=",")
             for i, (otype1,target,source,start,end) in enumerate(reader):
-                for otype2,file,loc in list_of_hdf5s:
-                    if source.split(".")[0]==file:
-                        with h5py.File(loc, 'r') as f:
-                            ronin = f.get("computed/ronin")[range(int(start),int(end))]
+                try:
+                    for otype2,file,loc in list_of_hdf5s:
+                        if source.split(".")[0]==file:
+                            with h5py.File(loc, 'r') as f:
+                                ronin = f.get("computed/ronin")[range(int(start),int(end))]
 
-                            savepath = osp.join(self.conf.traj_drawing_out_dir, otype1, target)
-                            if not os.path.exists(savepath):
-                                os.makedirs(savepath)
+                                savepath = osp.join(self.conf.traj_drawing_out_dir, otype1, target)
+                                if not os.path.exists(savepath):
+                                    os.makedirs(savepath)
 
-                            plt.scatter(x=ronin[:,0], y=ronin[:,1], s=0.01, linewidths=0.01, c="blue", label="RoNIN")
-                            # plt.axis('off')
-                            plt.savefig(osp.join(savepath,"traj_in_db.png"), dpi=100)
-                            plt.clf()
-                            print("Added Traj In DB For :",target,otype2,file)
-
+                                plt.scatter(x=ronin[:,0], y=ronin[:,1], s=0.01, linewidths=0.01, c="blue", label="RoNIN")
+                                # plt.axis('off')
+                                plt.savefig(osp.join(savepath,"traj_in_db.png"), dpi=100)
+                                plt.clf()
+                                print("Added Traj In DB For :",target,otype2,file)
+                except Exception as e:
+                    print(e)
 
         for hdf5 in list_of_hdf5s:
             self.drawTrajAll(hdf5)

@@ -167,9 +167,9 @@ class Predictor:
             plt.clf()
 
 
-samples = 100
+samples = 10
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs"
-data_dir = f"{root_dir}\\building_unib\\nilocdata-subset\\unib\\unseen"
+data_dir = f"{root_dir}\\building_unib_100m\\nilocdata-subset\\unib\\unseen"
 prediction_dir = f"{root_dir}\\predictions"
 files = os.listdir(data_dir)
 preferred_files = {
@@ -191,7 +191,7 @@ for sample in range(samples):
         # Generate Directory
         outname = uuid.uuid4()
         freq = 200
-        secs = 90
+        secs = 150
         csv_dir = f"{prediction_dir}\\{outname}\\1. csv_data\\db\\{uuid.uuid4()}"
         os.makedirs(csv_dir)
 
@@ -221,7 +221,7 @@ for sample in range(samples):
                     continue
                 np.savetxt(osp.join(csv_dir, filename + ".txt"), np_data, delimiter=" ")
 
-        predictor = Predictor(outname,"building_unib",freq,secs)
+        predictor = Predictor(outname,"building_unib_100m",freq,secs)
         predictor.generate_config()
         predictor.getRoNINTrajectory()
         predictor.visualizeTrajectory()
