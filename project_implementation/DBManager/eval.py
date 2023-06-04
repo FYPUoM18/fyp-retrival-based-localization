@@ -120,7 +120,7 @@ class Evaluator:
             expected_real_loc = self.fetchRealLocs(image_name, new_data_config)
             expected_locs.append(expected_real_loc)
 
-            fig, ax = plt.subplots(1, 5)
+            fig, ax = plt.subplots(1, new_data_config.no_of_candidates)
             layer = []
             figname = str(uuid.uuid4())
             ates=[str(figname)]
@@ -157,12 +157,12 @@ class Evaluator:
                 errs.append(str(err))
                 layer.append(predicted_real_loc)
 
-            with open(new_data_config.to_ates_csv, 'a', newline='') as csvfile:
-                writer = csv.writer(csvfile)
-                writer.writerow(ates)
-            with open(new_data_config.to_err_csv, 'a', newline='') as csvfile:
-                writer = csv.writer(csvfile)
-                writer.writerow(errs)
+            # with open(new_data_config.to_ates_csv, 'a', newline='') as csvfile:
+            #     writer = csv.writer(csvfile)
+            #     writer.writerow(ates)
+            # with open(new_data_config.to_err_csv, 'a', newline='') as csvfile:
+            #     writer = csv.writer(csvfile)
+            #     writer.writerow(errs)
 
             fig.savefig(path+"\\"+str(figname))
             plt.clf()

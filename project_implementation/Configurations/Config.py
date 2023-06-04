@@ -68,8 +68,8 @@ class Config:
         # Step6 : Image DB Generate
         self.image_db_loc = f"{self.root_dir}\\5. imageDB"
         self.image_db_meta_file = f"{self.root_dir}\\image_db_meta_file.csv"
-        self.window_size = 1000 #400
-        self.step_size = 250 #150
+        self.window_size = 900 #400
+        self.step_size = 100 #150
 
         # Step7 : Build KDTree
         self.image_db_loc_kdtree = f"{self.root_dir}\\5. imageDB\\db"
