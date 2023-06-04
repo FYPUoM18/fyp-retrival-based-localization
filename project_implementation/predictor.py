@@ -216,7 +216,7 @@ for sample in range(samples):
         # Generate Directory
         outname = uuid.uuid4()
         freq = 200
-        secs = 120
+        secs = 150
         csv_dir = f"{prediction_dir}\\{outname}\\1. csv_data\\db\\{uuid.uuid4()}"
         os.makedirs(csv_dir)
 

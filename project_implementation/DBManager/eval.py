@@ -146,10 +146,10 @@ class Evaluator:
 
                 err1 = self.err_dst(expected_real_loc,0,predicted_real_loc,-1)
                 err2 = self.err_dst(expected_real_loc,-1,predicted_real_loc,0)
-                err_swapped = (err1 + err2) / 2
+                err_flipped = (err1 + err2) / 2
 
                 ate = min([ate_1,ate_2])
-                err = min([err_normal,err_swapped])
+                err = min([err_normal,err_flipped])
                 ax[i].text(0.25, 0.95, f'ATE: {ate:.2f}', transform=ax[i].transAxes, ha='left', va='top')
                 ax[i].text(0.15, 0.95, f'ERR: {err:.2f}', transform=ax[i].transAxes, ha='left', va='bottom')
 
