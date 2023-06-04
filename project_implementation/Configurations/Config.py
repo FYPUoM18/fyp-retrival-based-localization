@@ -3,7 +3,7 @@ import json
 
 class Config:
     def __init__(self,root_dir):
-        self.steps = []
+        self.steps = [6,7]
 
         # Building Params
         self.x_lim = 60
@@ -68,8 +68,8 @@ class Config:
         # Step6 : Image DB Generate
         self.image_db_loc = f"{self.root_dir}\\5. imageDB"
         self.image_db_meta_file = f"{self.root_dir}\\image_db_meta_file.csv"
-        self.window_size = 800 #400
-        self.step_size = 200 #150
+        self.window_size = 400 #400
+        self.step_size = 150 #150
 
         # Step7 : Build KDTree
         self.image_db_loc_kdtree = f"{self.root_dir}\\5. imageDB\\db"

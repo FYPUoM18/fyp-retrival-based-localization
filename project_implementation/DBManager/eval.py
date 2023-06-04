@@ -81,6 +81,9 @@ class Evaluator:
 
         return distance
 
+    def euclidean(self, row_x_y_1, row_x_y_2):
+        err = math.sqrt((row_x_y_1[0] - row_x_y_2[0]) ** 2 + (row_x_y_1[1] - row_x_y_2[1]) ** 2)
+
     def evaluate(self,new_data_config,building_data_config):
         print("Started Evaluating")
         # Loading KDTree
@@ -138,12 +141,15 @@ class Evaluator:
                 ate_2 = self.calculate_ate(expected_real_loc, predicted_real_loc[::-1])
 
                 err1 = self.err_dst(expected_real_loc,0,predicted_real_loc,0)
-                err2 = self.err_dst(expected_real_loc,0,predicted_real_loc,-1)
-                err3 = self.err_dst(expected_real_loc,-1,predicted_real_loc,0)
-                err4 = self.err_dst(expected_real_loc,-1,predicted_real_loc,-1)
+                err2 = self.err_dst(expected_real_loc, -1, predicted_real_loc, -1)
+                err_normal = (err1+err2)/2
+
+                err1 = self.err_dst(expected_real_loc,0,predicted_real_loc,-1)
+                err2 = self.err_dst(expected_real_loc,-1,predicted_real_loc,0)
+                err_swapped = (err1 + err2) / 2
 
                 ate = min([ate_1,ate_2])
-                err = min([err1,err2,err3,err4])
+                err = min([err_normal,err_swapped])
                 ax[i].text(0.25, 0.95, f'ATE: {ate:.2f}', transform=ax[i].transAxes, ha='left', va='top')
                 ax[i].text(0.15, 0.95, f'ERR: {err:.2f}', transform=ax[i].transAxes, ha='left', va='bottom')
 
@@ -151,7 +157,12 @@ class Evaluator:
                 errs.append(str(err))
                 layer.append(predicted_real_loc)
 
-
+            with open(new_data_config.to_ates_csv, 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(ates)
+            with open(new_data_config.to_err_csv, 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(errs)
 
             fig.savefig(path+"\\"+str(figname))
             plt.clf()

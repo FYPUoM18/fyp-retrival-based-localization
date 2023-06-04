@@ -7,6 +7,7 @@ import uuid
 import h5py
 import csv
 from Configurations.Config import Config
+from scipy.spatial.distance import cdist
 from compile_dataset.compiler import Compiler
 from traj_visualizer.traj_visualizer import TrajVisualizer
 from domain_mapper.convert_domain import DomainConverter
@@ -93,6 +94,27 @@ class Predictor:
     def getDTW(self,nplist1, nplist2):
         distance, path = fastdtw(nplist1, nplist2, dist=euclidean)
         return distance
+
+    def frechet_distance(self,P, Q):
+        """
+        Compute the Fréchet distance between two trajectories P and Q.
+        """
+        n = len(P)
+        m = len(Q)
+        if n != m:
+            raise ValueError("Trajectories must have the same length")
+        D = cdist(P, Q)
+        L = np.zeros((n, m))
+        L[0, 0] = D[0, 0]
+        for i in range(1, n):
+            L[i, 0] = max(L[i - 1, 0], D[i, 0])
+        for j in range(1, m):
+            L[0, j] = max(L[0, j - 1], D[0, j])
+        for i in range(1, n):
+            for j in range(1, m):
+                L[i, j] = max(min(L[i - 1, j], L[i - 1, j - 1], L[i, j - 1]), D[i, j])
+        return L[n - 1, m - 1]
+
     def combineLocs(self, layer_1, layer_2):
 
         window_size = self.building_data_config.window_size
@@ -113,17 +135,21 @@ class Predictor:
                         node_prev_updated = node_prev[::i]
                         node_post_updated = node_post[::j]
 
-                        node_middle_1 = node_prev_updated[step_size:, [0, 1]]
-                        node_middle_2 = node_post_updated[:common_points_count, [0, 1]]
+                        # node_middle_1 = node_prev_updated[step_size:, [0, 1]]
+                        # node_middle_2 = node_post_updated[:common_points_count, [0, 1]]
 
-                        dist = self.getDTW(node_middle_1,node_middle_2)
+                        dist = math.sqrt((node_prev_updated[-1, 0] - node_post_updated[0, 0]) ** 2 + (
+                                    node_prev_updated[-1, 1] - node_post_updated[0, 1]) ** 2)
+                        # dist = self.getDTW(node_middle_1,node_middle_2)
                         if dist<min_dist:
                             min_dist=dist
                             selected_node_prev=node_prev_updated
                             selected_node_post=node_post_updated
 
-        return min_dist,selected_node_prev,selected_node_post, selected_node_post[-1]
+        return min_dist,np.vstack((selected_node_prev, selected_node_post))
 
+    def euclidean(self, row_x_y_1, row_x_y_2):
+        err = math.sqrt((row_x_y_1[0] - row_x_y_2[0]) ** 2 + (row_x_y_1[1] - row_x_y_2[1]) ** 2)
     def filterMatchings(self, layers, expected_locs):
 
         path = self.new_data_config.root_dir + "\\filterings"
@@ -143,24 +169,21 @@ class Predictor:
                 plt.xlim([0, self.building_data_config.x_lim])
                 plt.ylim([0, self.building_data_config.y_lim])
 
-                min_dist, selected_node_prev, selected_node_post, final_loc_e = self.combineLocs([expected_locs[current_layer]],[expected_locs[next_layer]])
-                plt.scatter(selected_node_prev[:, 0], selected_node_prev[:, 1], color='red', s=1)
-                plt.scatter(selected_node_post[:, 0], selected_node_post[:, 1], color='red', s=1)
+                min_dist_e, merged_loc_e = self.combineLocs([expected_locs[current_layer]],[expected_locs[next_layer]])
+                plt.scatter(merged_loc_e[:, 0], merged_loc_e[:, 1], color='red', s=1)
 
+                min_dist_p, merged_loc_p = self.combineLocs(layers[current_layer],layers[next_layer])
+                plt.scatter(merged_loc_p[:, 0], merged_loc_p[:, 1], color='green', s=1)
 
-                min_dist,selected_node_prev,selected_node_post,final_loc_p = self.combineLocs(layers[current_layer],layers[next_layer])
-                plt.scatter(selected_node_prev[:, 0], selected_node_prev[:, 1], color='green', s=1)
-                plt.scatter(selected_node_post[:, 0], selected_node_post[:, 1], color='yellow', s=1)
-
-                plt.scatter(final_loc_e[0], final_loc_e[1], color='black', s=20)
-                plt.scatter(final_loc_p[0], final_loc_p[1], color='blue', s=20)
+                plt.scatter(merged_loc_e[-1,0], merged_loc_e[-1,1], color='black', s=20)
+                plt.scatter(merged_loc_p[-1,0], merged_loc_p[-1,1], color='blue', s=20)
 
                 current_layer+=1
                 next_layer+=1
 
                 with open(self.new_data_config.to_err_csv, 'a', newline='') as csvfile:
                     writer = csv.writer(csvfile)
-                    err = math.sqrt((final_loc_p[0] - final_loc_e[0]) ** 2 + (final_loc_p[1] - final_loc_e[1]) ** 2)
+                    err = math.sqrt((merged_loc_e[-1,0] - merged_loc_p[-1,0]) ** 2 + (merged_loc_e[-1,1] - merged_loc_p[-1,1]) ** 2)
                     writer.writerow([name, err])
 
                 break
@@ -193,7 +216,7 @@ for sample in range(samples):
         # Generate Directory
         outname = uuid.uuid4()
         freq = 200
-        secs = 150
+        secs = 120
         csv_dir = f"{prediction_dir}\\{outname}\\1. csv_data\\db\\{uuid.uuid4()}"
         os.makedirs(csv_dir)
 
@@ -230,7 +253,7 @@ for sample in range(samples):
         predictor.makeTimeInvariant()
         predictor.generateImageDB()
         layers,expected_locs = predictor.findMatchings()
-        predictor.filterMatchings(layers,expected_locs)
+        # predictor.filterMatchings(layers,expected_locs)
 
     except Exception as ex:
         print(ex)
