@@ -157,12 +157,13 @@ class Evaluator:
                 errs.append(str(err))
                 layer.append(predicted_real_loc)
 
-            # with open(new_data_config.to_ates_csv, 'a', newline='') as csvfile:
-            #     writer = csv.writer(csvfile)
-            #     writer.writerow(ates)
-            # with open(new_data_config.to_err_csv, 'a', newline='') as csvfile:
-            #     writer = csv.writer(csvfile)
-            #     writer.writerow(errs)
+            with open(new_data_config.to_k_ates_csv, 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(ates)
+
+            with open(new_data_config.to_ates_csv, 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(errs)
 
             fig.savefig(path+"\\"+str(figname))
             plt.clf()

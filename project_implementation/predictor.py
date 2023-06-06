@@ -48,7 +48,7 @@ class Predictor:
         new_data_config.segment_length = building_config.segment_length
         new_data_config.window_size = building_config.window_size
         new_data_config.step_size = building_config.step_size
-        new_data_config.no_of_candidates = 10#building_config.no_of_candidates
+        new_data_config.no_of_candidates = building_config.no_of_candidates
         new_data_config.ronin_checkpoint = building_config.ronin_checkpoint
         new_data_config.image_db_loc_kdtree = building_config.image_db_loc_kdtree
         new_data_config.kdtree_features_loc = building_config.kdtree_features_loc
@@ -204,7 +204,7 @@ class Predictor:
 
 samples = 110
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs"
-data_dir = f"{root_dir}\\building_unib_100m\\nilocdata-subset\\unib\\unseen"
+data_dir = f"{root_dir}\\building_unia_100m\\nilocdata-subset\\unia\\unseen"
 prediction_dir = f"{root_dir}\\predictions"
 files = os.listdir(data_dir)
 preferred_files = {
@@ -226,7 +226,7 @@ for sample in range(samples):
         # Generate Directory
         outname = uuid.uuid4()
         freq = 200
-        secs = 150
+        secs = 250
         csv_dir = f"{prediction_dir}\\{outname}\\1. csv_data\\db\\{uuid.uuid4()}"
         os.makedirs(csv_dir)
 
@@ -256,7 +256,7 @@ for sample in range(samples):
                     continue
                 np.savetxt(osp.join(csv_dir, filename + ".txt"), np_data, delimiter=" ")
 
-        predictor = Predictor(outname,"building_unib_100m",freq,secs)
+        predictor = Predictor(outname,"building_unia_100m",freq,secs)
         predictor.generate_config()
         predictor.getRoNINTrajectory()
         predictor.visualizeTrajectory()

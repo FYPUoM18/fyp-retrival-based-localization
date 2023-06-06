@@ -38,14 +38,13 @@ class TrajVisualizer:
 
             # Get Trajectory
             ronin = f.get("computed/ronin")[:]
-            real = f.get("synced/loc")[:]
+
 
 
             # Plot and Save
             x = ronin[:, 0]
             y = ronin[:, 1]
-            real_x = real[:,0] - real[0,0]
-            real_y = real[:,1] - real[0,1]
+
 
             plt.scatter(x=x, y=y, s=0.01, linewidths=0.01, c="blue", label="RoNIN")
             plt.axis('off')
@@ -53,11 +52,19 @@ class TrajVisualizer:
             plt.clf()
             print("Saved", ronin_img_path)
 
-            plt.scatter(x=real_x, y=real_y, s=0.01, linewidths=0.01, c="red",label="Ground Truth")
-            plt.axis('off')
-            plt.savefig(ground_img_path, dpi=100)
-            plt.clf()
-            print("Saved", ground_img_path)
+            try:
+                real = f.get("synced/loc")[:]
+                real_x = real[:, 0] - real[0, 0]
+                real_y = real[:, 1] - real[0, 1]
+                plt.scatter(x=real_x, y=real_y, s=0.01, linewidths=0.01, c="red", label="Ground Truth")
+                plt.axis('off')
+                plt.savefig(ground_img_path, dpi=100)
+                plt.clf()
+                print("Saved", ground_img_path)
+
+            except Exception as e:
+                print(e)
+
 
             # Create CSV
             if f.get("synced/loc") != None:
