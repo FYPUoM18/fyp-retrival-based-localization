@@ -3,7 +3,7 @@ import json
 
 class Config:
     def __init__(self,root_dir):
-        self.steps = []
+        self.steps = [3,4,5,6,7]
 
         # Building Params
         self.x_lim = 150
@@ -15,25 +15,25 @@ class Config:
         # Step1: Generate CSV From HDF5
         self.hdf5datadir = {
             "db": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\unia\\seen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\officec\\seen",
                 "isseen": True,
                 "countperset": -1,
                 "indb": True
             },
             "train": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\unia\\seen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\officec\\seen",
                 "isseen": True,
                 "countperset": 2,
                 "indb": False
             },
             "test": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\unia\\unseen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\officec\\unseen",
                 "isseen": False,
                 "countperset": 2,
                 "indb": False
             },
             "val": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\unia\\unseen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\officec\\unseen",
                 "isseen": False,
                 "countperset": 2,
                 "indb": False
@@ -81,7 +81,7 @@ class Config:
         self.test_invariant_dir = f"{self.root_dir}\\4. invariant\\test"
         self.val_invariant_dir = f"{self.root_dir}\\4. invariant\\val"
         self.to_eval_dir = f"{self.root_dir}\\5. imageDB\\db"
-        self.to_ates_csv = "ates.csv"
+        self.to_ates_csv = "mean.csv"
         self.to_err_csv = "err.csv"
         self.to_k_ates_csv = "k_ates.csv"
         self.no_of_candidates = 10

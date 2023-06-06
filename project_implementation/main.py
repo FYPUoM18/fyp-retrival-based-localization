@@ -10,7 +10,7 @@ from history.HistoryModel import HistoryModel
 from history.DataStorer import DataStorer
 from history.LSTM import LSTM
 
-root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\building_unia_100m"
+root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\building_uni_mora"
 config = Config(root_dir)
 steps = config.steps
 
