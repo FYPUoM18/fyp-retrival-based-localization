@@ -148,7 +148,7 @@ class Predictor:
 
                         # dist = math.sqrt((node_prev_updated[-1, 0] - node_post_updated[0, 0]) ** 2 + (
                         #             node_prev_updated[-1, 1] - node_post_updated[0, 1]) ** 2)
-                        dist = self.calculate_ate(node_middle_1,node_middle_2)
+                        dist = self.getDTW(node_middle_1,node_middle_2)
                         if dist<min_dist:
                             min_dist=dist
                             selected_node_prev=node_prev_updated
@@ -204,7 +204,7 @@ class Predictor:
 
 samples = 110
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs"
-data_dir = f"{root_dir}\\building_unia_40m\\nilocdata-subset\\unia\\unseen"
+data_dir = f"{root_dir}\\building_unib_40m\\nilocdata-subset\\unib\\unseen"
 prediction_dir = f"{root_dir}\\predictions"
 files = os.listdir(data_dir)
 preferred_files = {
@@ -256,7 +256,7 @@ for sample in range(samples):
                     continue
                 np.savetxt(osp.join(csv_dir, filename + ".txt"), np_data, delimiter=" ")
 
-        predictor = Predictor(outname,"building_unia_40m",freq,secs)
+        predictor = Predictor(outname,"building_unib_40m",freq,secs)
         predictor.generate_config()
         predictor.getRoNINTrajectory()
         predictor.visualizeTrajectory()

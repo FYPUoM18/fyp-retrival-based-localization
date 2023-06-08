@@ -84,7 +84,7 @@ class Config:
         self.to_ates_csv = "mean.csv"
         self.to_err_csv = "err.csv"
         self.to_k_ates_csv = "k_ates.csv"
-        self.no_of_candidates = 5
+        self.no_of_candidates = 10
 
         # Filtering
         self.merge_threshold = 1200
