@@ -3,10 +3,10 @@ import json
 
 class Config:
     def __init__(self,root_dir):
-        self.steps = []
+        self.steps = [6,7]
 
         # Building Params
-        self.x_lim = 60
+        self.x_lim = 150
         self.y_lim = 150
 
         # Root Dir
@@ -15,25 +15,25 @@ class Config:
         # Step1: Generate CSV From HDF5
         self.hdf5datadir = {
             "db": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\unib\\seen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\unia\\seen",
                 "isseen": True,
                 "countperset": -1,
                 "indb": True
             },
             "train": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\unib\\seen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\unia\\seen",
                 "isseen": True,
                 "countperset": 2,
                 "indb": False
             },
             "test": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\unib\\unseen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\unia\\unseen",
                 "isseen": False,
                 "countperset": 2,
                 "indb": False
             },
             "val": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\unib\\unseen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\unia\\unseen",
                 "isseen": False,
                 "countperset": 2,
                 "indb": False
