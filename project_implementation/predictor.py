@@ -256,14 +256,14 @@ for sample in range(samples):
                     continue
                 np.savetxt(osp.join(csv_dir, filename + ".txt"), np_data, delimiter=" ")
 
-        predictor = Predictor(outname,"building_office_c_40m",freq,secs)
+        predictor = Predictor(outname,"building_office_c_20m",freq,secs)
         predictor.generate_config()
         predictor.getRoNINTrajectory()
         predictor.visualizeTrajectory()
         predictor.makeTimeInvariant()
         predictor.generateImageDB()
         layers,expected_locs = predictor.findMatchings()
-        predictor.filterMatchings(layers,expected_locs)
+        # predictor.filterMatchings(layers,expected_locs)
 
     except Exception as ex:
         print(ex)

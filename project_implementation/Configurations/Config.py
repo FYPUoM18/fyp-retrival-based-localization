@@ -3,11 +3,11 @@ import json
 
 class Config:
     def __init__(self,root_dir):
-        self.steps = [6,7]
+        self.steps = []
 
         # Building Params
-        self.x_lim = 150
-        self.y_lim = 150
+        self.x_lim = 15
+        self.y_lim = 40
 
         # Root Dir
         self.root_dir = root_dir
