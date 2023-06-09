@@ -15,25 +15,25 @@ class Config:
         # Step1: Generate CSV From HDF5
         self.hdf5datadir = {
             "db": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\unia\\seen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\officec\\seen",
                 "isseen": True,
                 "countperset": -1,
                 "indb": True
             },
             "train": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\unia\\seen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\officec\\seen",
                 "isseen": True,
                 "countperset": 2,
                 "indb": False
             },
             "test": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\unia\\unseen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\officec\\unseen",
                 "isseen": False,
                 "countperset": 2,
                 "indb": False
             },
             "val": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\unia\\unseen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\officec\\unseen",
                 "isseen": False,
                 "countperset": 2,
                 "indb": False
@@ -68,8 +68,8 @@ class Config:
         # Step6 : Image DB Generate
         self.image_db_loc = f"{self.root_dir}\\5. imageDB"
         self.image_db_meta_file = f"{self.root_dir}\\image_db_meta_file.csv"
-        self.window_size = 400 #400
-        self.step_size = 100 #150
+        self.window_size = 200 #400
+        self.step_size = 50 #150
 
         # Step7 : Build KDTree
         self.image_db_loc_kdtree = f"{self.root_dir}\\5. imageDB\\db"
@@ -84,7 +84,7 @@ class Config:
         self.to_ates_csv = "mean.csv"
         self.to_err_csv = "err.csv"
         self.to_k_ates_csv = "k_ates.csv"
-        self.no_of_candidates = 10
+        self.no_of_candidates = 5
 
         # Filtering
         self.merge_threshold = 1200
