@@ -3,11 +3,11 @@ import json
 
 class Config:
     def __init__(self,root_dir):
-        self.steps = []
+        self.steps = [6,7]
 
         # Building Params
-        self.x_lim = 15
-        self.y_lim = 40
+        self.x_lim = 60
+        self.y_lim = 150
 
         # Root Dir
         self.root_dir = root_dir
@@ -15,25 +15,25 @@ class Config:
         # Step1: Generate CSV From HDF5
         self.hdf5datadir = {
             "db": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\officec\\seen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\unib\\seen",
                 "isseen": True,
                 "countperset": -1,
                 "indb": True
             },
             "train": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\officec\\seen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\unib\\seen",
                 "isseen": True,
                 "countperset": 2,
                 "indb": False
             },
             "test": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\officec\\unseen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\unib\\unseen",
                 "isseen": False,
                 "countperset": 2,
                 "indb": False
             },
             "val": {
-                "loc": f"{self.root_dir}\\nilocdata-subset\\officec\\unseen",
+                "loc": f"{self.root_dir}\\nilocdata-subset\\unib\\unseen",
                 "isseen": False,
                 "countperset": 2,
                 "indb": False
@@ -68,8 +68,8 @@ class Config:
         # Step6 : Image DB Generate
         self.image_db_loc = f"{self.root_dir}\\5. imageDB"
         self.image_db_meta_file = f"{self.root_dir}\\image_db_meta_file.csv"
-        self.window_size = 200 #400
-        self.step_size = 50 #150
+        self.window_size = 500 #400
+        self.step_size = 125 #150
 
         # Step7 : Build KDTree
         self.image_db_loc_kdtree = f"{self.root_dir}\\5. imageDB\\db"
