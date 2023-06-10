@@ -198,14 +198,18 @@ class Compiler:
     #         data[:, 0] >= output_time[0], data[:, 0] <= output_time[-1])]
     #     return data
 
-    def compile_unannotated_sequence(self, root_dir, data_list, ronin_checkpoint, out_dir, isnano, is_loc_available,is_gyro_shuffled,sample_rate):
+    def compile_unannotated_sequence(self, root_dir, data_list, ronin_checkpoint, out_dir, isnano,is_ours, is_loc_available,is_gyro_shuffled,sample_rate):
         """
         Compile unannotated(or imu_only) sequence directly from raw files.
         """
         source_vector = {'gyro', 'acce'}
         source_quaternion = {'game_rv'}
         fail_list = []
-        divider = 1000000000 if isnano else 1
+        divider = 1
+        if isnano:
+            divider=1000000000
+        if is_ours:
+            divider=1000
         _raw_data_sources = ['gyro', 'acce', 'game_rv']
         _optional_data_sources = []
         if is_loc_available:
@@ -349,14 +353,20 @@ class Compiler:
                 os.makedirs(out_dir)
 
                 is_nano = False
+                is_ours = False
                 is_loc_available = True
                 is_gyro_shuffled = True
+                if folder == "ourmobile":
+                    is_ours = True
+                    is_loc_available = True
+                    is_gyro_shuffled = False
+
                 if folder == "mobile":
                     is_nano = True
                     is_loc_available = False
                     is_gyro_shuffled = False
 
                 self.compile_unannotated_sequence(
-                    root_dir, data_list, ronin_checkpoint, out_dir, is_nano, is_loc_available,is_gyro_shuffled,sample_rate)
+                    root_dir, data_list, ronin_checkpoint, out_dir, is_nano,is_ours, is_loc_available,is_gyro_shuffled,sample_rate)
             except Exception as e:
                 print(e)
