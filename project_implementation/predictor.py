@@ -157,54 +157,69 @@ class Predictor:
         return min_dist, selected_node_prev, selected_node_post, selected_node_post[-1]
 
     def euclidean(self, row_x_y_1, row_x_y_2):
-        err = math.sqrt((row_x_y_1[0] - row_x_y_2[0]) ** 2 + (row_x_y_1[1] - row_x_y_2[1]) ** 2)
+        dist = math.sqrt((row_x_y_1[0] - row_x_y_2[0]) ** 2 + (row_x_y_1[1] - row_x_y_2[1]) ** 2)
+        return dist
+
     def filterMatchings(self, layers, expected_locs):
 
-        path = self.new_data_config.root_dir + "\\filterings"
-        if os.path.exists(path):
-            shutil.rmtree(path)
-        os.mkdir(path)
+        filtering_path = self.new_data_config.root_dir + "\\filterings"
+        if os.path.exists(filtering_path):
+            shutil.rmtree(filtering_path)
+        os.mkdir(filtering_path)
 
-        if len(layers)==1:
-            print("Only One Layer Is Available. Can't Do Filterings ... ")
+        for i in range(len(layers)):
 
-        else:
-            current_layer = 0
-            next_layer = 1
+            initial_loc = expected_locs[i][0]
+            expected_end_loc = expected_locs[i][-1]
+            possible_paths = layers[i]
+
+            predicted_end_loc = None
+            min_dist = float('inf')
+            best_path = None
+
+            for path in possible_paths:
+                # print(path[0])
+                # print(path[-1])
+                # print(initial_loc)
+                dist_1 = self.euclidean(initial_loc,path[0])
+                dist_2 = self.euclidean(initial_loc, path[-1])
+                # print(dist_1)
+                # print(dist_2)
+
+                if dist_1<=min_dist:
+                    min_dist=dist_1
+                    best_path=path
+                    predicted_end_loc = path[-1]
+
+                if dist_2<=min_dist:
+                    min_dist=dist_2
+                    best_path=path
+                    predicted_end_loc = path[0]
+
+            err = self.euclidean(predicted_end_loc,expected_end_loc)
             name = str(uuid.uuid4())
-            while next_layer<len(layers):
-                print(f"Layer 1 : {current_layer} , Layer 2 : {next_layer}")
-                plt.xlim([0, self.building_data_config.x_lim])
-                plt.ylim([0, self.building_data_config.y_lim])
 
-                min_dist, selected_node_prev, selected_node_post, final_loc_e = self.combineLocs([expected_locs[current_layer]],[expected_locs[next_layer]])
-                plt.scatter(selected_node_prev[:, 0], selected_node_prev[:, 1], color='red', s=1)
-                plt.scatter(selected_node_post[:, 0], selected_node_post[:, 1], color='red', s=1)
+            plt.xlim([0, self.building_data_config.x_lim])
+            plt.ylim([0, self.building_data_config.y_lim])
 
-                min_dist,selected_node_prev,selected_node_post,final_loc_p = self.combineLocs(layers[current_layer],layers[next_layer])
-                plt.scatter(selected_node_prev[:, 0], selected_node_prev[:, 1], color='green', s=1)
-                plt.scatter(selected_node_post[:, 0], selected_node_post[:, 1], color='yellow', s=1)
+            plt.scatter(best_path[:, 0], best_path[:, 1], color='blue', s=1)
+            plt.scatter(expected_locs[i][:, 0], expected_locs[i][:, 1], color='red', s=1)
 
-                plt.scatter(final_loc_e[0], final_loc_e[1], color='black', s=20)
-                plt.scatter(final_loc_p[0], final_loc_p[1], color='blue', s=20)
+            plt.scatter(initial_loc[0], initial_loc[1], color='yellow', s=20)
+            plt.scatter(expected_end_loc[0], expected_end_loc[1], color='black', s=20)
+            plt.scatter(predicted_end_loc[0], predicted_end_loc[1], color='green', s=20)
 
-                current_layer+=1
-                next_layer+=1
+            with open(self.new_data_config.to_err_csv, 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow([name, err])
 
-                with open(self.new_data_config.to_err_csv, 'a', newline='') as csvfile:
-                    writer = csv.writer(csvfile)
-                    err = math.sqrt((final_loc_p[0] - final_loc_e[0]) ** 2 + (final_loc_p[1] - final_loc_e[1]) ** 2)
-                    writer.writerow([name, err])
-
-                break
-
-            plt.savefig(path + "\\" + name)
+            plt.savefig(filtering_path + "\\" + name)
             plt.clf()
 
 
 samples = 110
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs"
-data_dir = f"{root_dir}\\building_unib_50m\\nilocdata-subset\\unib\\unseen"
+data_dir = f"{root_dir}\\building_office_c_20m\\nilocdata-subset\\officec\\unseen"
 prediction_dir = f"{root_dir}\\predictions"
 files = os.listdir(data_dir)
 preferred_files = {
@@ -256,14 +271,14 @@ for sample in range(samples):
                     continue
                 np.savetxt(osp.join(csv_dir, filename + ".txt"), np_data, delimiter=" ")
 
-        predictor = Predictor(outname,"building_unib_50m",freq,secs)
+        predictor = Predictor(outname,"building_office_c_20m",freq,secs)
         predictor.generate_config()
         predictor.getRoNINTrajectory()
         predictor.visualizeTrajectory()
         predictor.makeTimeInvariant()
         predictor.generateImageDB()
         layers,expected_locs = predictor.findMatchings()
-        # predictor.filterMatchings(layers,expected_locs)
+        predictor.filterMatchings(layers,expected_locs)
 
     except Exception as ex:
         print(ex)

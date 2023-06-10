@@ -9,6 +9,7 @@ from traj_visualizer.traj_visualizer import TrajVisualizer
 from history.HistoryModel import HistoryModel
 from history.DataStorer import DataStorer
 from history.LSTM import LSTM
+from floor_plan_builder.FingerPrintManager import FingerPrintManager
 
 root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\building_unib_50m"
 config = Config(root_dir)
@@ -23,30 +24,35 @@ if __name__ == "__main__":
         csv_generator.generate()
 
     if 2 in steps:
+        fmgr = FingerPrintManager(config)
+        fmgr.build()
+
+
+    if 3 in steps:
         splitter = TrainTestValSplitter(config)
         splitter.split()
 
-    if 3 in steps:
+    if 4 in steps:
         data_compiler = Compiler(config)
         data_compiler.compile()
 
-    if 4 in steps:
+    if 5 in steps:
         traj_visualizer = TrajVisualizer(config)
         traj_visualizer.drawRoNINTraj()
 
-    if 5 in steps:
+    if 6 in steps:
         domain_convertor = DomainConverter(config)
         domain_convertor.make_time_invariant()
 
-    if 6 in steps:
+    if 7 in steps:
         generate_imagedb = DBManager(config)
         generate_imagedb.generateImageDB()
 
-    if 7 in steps:
+    if 8 in steps:
         generate_imagedb = DBManager(config)
         generate_imagedb.buildKDTree()
 
-    if 8 in steps:
+    if 9 in steps:
         evaluator = Evaluator(config)
         evaluator.evaluate()
 
