@@ -150,8 +150,8 @@ class Evaluator:
 
                 ate = min([ate_1,ate_2])
                 err = min([err_normal,err_flipped])
-                ax[i].text(0.25, 0.95, f'ATE: {ate:.2f}', transform=ax[i].transAxes, ha='left', va='top')
-                ax[i].text(0.15, 0.95, f'ERR: {err:.2f}', transform=ax[i].transAxes, ha='left', va='bottom')
+                ax[i].text(0.15, 0.95, f'ATE: {ate:.2f}', transform=ax[i].transAxes, ha='left', va='top',fontsize=6)
+                # ax[i].text(0.15, 0.95, f'ERR: {err:.2f}', transform=ax[i].transAxes, ha='left', va='bottom')
 
                 ates.append(str(ate))
                 errs.append(str(err))
