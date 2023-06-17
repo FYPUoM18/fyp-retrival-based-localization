@@ -102,71 +102,76 @@ class Evaluator:
         random.shuffle(image_files)
 
         path = new_data_config.root_dir + "\\predictions"
+
         if os.path.exists(path):
             shutil.rmtree(path)
+ 
         os.mkdir(path)
 
         expected_locs = []
         layers = []
+        try:
+            for image_file in image_files:
 
-        for image_file in image_files:
+                image_name = image_file
+                image_loc = osp.join(new_data_config.to_eval_dir, image_file)
+                pil_img = Image.open(image_loc)
 
-            image_name = image_file
-            image_loc = osp.join(new_data_config.to_eval_dir, image_file)
-            pil_img = Image.open(image_loc)
+                feature = dbmanager.extract_features(pil_img)
+                img_dist, ind = tree.query(feature,k=new_data_config.no_of_candidates)
+                expected_real_loc = self.fetchRealLocs(image_name, new_data_config)
+                expected_locs.append(expected_real_loc)
 
-            feature = dbmanager.extract_features(pil_img)
-            img_dist, ind = tree.query(feature,k=new_data_config.no_of_candidates)
-            expected_real_loc = self.fetchRealLocs(image_name, new_data_config)
-            expected_locs.append(expected_real_loc)
+                fig, ax = plt.subplots(1, new_data_config.no_of_candidates)
+                layer = []
+                figname = str(uuid.uuid4())
+                ates=[str(figname)]
+                errs = [str(figname)]
+                for i in range(len(ind)):
 
-            fig, ax = plt.subplots(1, new_data_config.no_of_candidates)
-            layer = []
-            figname = str(uuid.uuid4())
-            ates=[str(figname)]
-            errs = [str(figname)]
-            for i in range(len(ind)):
+                    best_image_name = tags[ind[i]]
+                    best_img_loc = osp.join(building_data_config.image_db_loc_kdtree, best_image_name)
+                    pil_img_best_match = Image.open(best_img_loc)
 
-                best_image_name = tags[ind[i]]
-                best_img_loc = osp.join(building_data_config.image_db_loc_kdtree, best_image_name)
-                pil_img_best_match = Image.open(best_img_loc)
+                    predicted_real_loc = self.fetchRealLocs(best_image_name,building_data_config)
+                    ax[i].scatter(expected_real_loc[:, 0], expected_real_loc[:, 1], color="red", s=0.1)
+                    ax[i].scatter(predicted_real_loc[:, 0], predicted_real_loc[:, 1], color="blue", s=0.1)
+                    ax[i].set_xlim([0, building_data_config.x_lim])
+                    ax[i].set_ylim([0, building_data_config.y_lim])
 
-                predicted_real_loc = self.fetchRealLocs(best_image_name,building_data_config)
-                ax[i].scatter(expected_real_loc[:, 0], expected_real_loc[:, 1], color="red", s=0.1)
-                ax[i].scatter(predicted_real_loc[:, 0], predicted_real_loc[:, 1], color="blue", s=0.1)
-                ax[i].set_xlim([0, building_data_config.x_lim])
-                ax[i].set_ylim([0, building_data_config.y_lim])
+                    ate_1 = self.calculate_ate(expected_real_loc,predicted_real_loc)
+                    ate_2 = self.calculate_ate(expected_real_loc, predicted_real_loc[::-1])
 
-                ate_1 = self.calculate_ate(expected_real_loc,predicted_real_loc)
-                ate_2 = self.calculate_ate(expected_real_loc, predicted_real_loc[::-1])
+                    err1 = self.err_dst(expected_real_loc,0,predicted_real_loc,0)
+                    err2 = self.err_dst(expected_real_loc, -1, predicted_real_loc, -1)
+                    err_normal = (err1+err2)/2
 
-                err1 = self.err_dst(expected_real_loc,0,predicted_real_loc,0)
-                err2 = self.err_dst(expected_real_loc, -1, predicted_real_loc, -1)
-                err_normal = (err1+err2)/2
+                    err1 = self.err_dst(expected_real_loc,0,predicted_real_loc,-1)
+                    err2 = self.err_dst(expected_real_loc,-1,predicted_real_loc,0)
+                    err_flipped = (err1 + err2) / 2
 
-                err1 = self.err_dst(expected_real_loc,0,predicted_real_loc,-1)
-                err2 = self.err_dst(expected_real_loc,-1,predicted_real_loc,0)
-                err_flipped = (err1 + err2) / 2
+                    ate = min([ate_1,ate_2])
+                    err = min([err_normal,err_flipped])
+                    ax[i].text(0.25, 0.95, f'ATE: {ate:.2f}', transform=ax[i].transAxes, ha='left', va='top')
+                    ax[i].text(0.15, 0.95, f'ERR: {err:.2f}', transform=ax[i].transAxes, ha='left', va='bottom')
 
-                ate = min([ate_1,ate_2])
-                err = min([err_normal,err_flipped])
-                ax[i].text(0.25, 0.95, f'ATE: {ate:.2f}', transform=ax[i].transAxes, ha='left', va='top')
-                ax[i].text(0.15, 0.95, f'ERR: {err:.2f}', transform=ax[i].transAxes, ha='left', va='bottom')
+                    ates.append(str(ate))
+                    errs.append(str(err))
+                    layer.append(predicted_real_loc)
 
-                ates.append(str(ate))
-                errs.append(str(err))
-                layer.append(predicted_real_loc)
+                with open(new_data_config.to_k_ates_csv, 'a', newline='') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerow(ates)
 
-            with open(new_data_config.to_k_ates_csv, 'a', newline='') as csvfile:
-                writer = csv.writer(csvfile)
-                writer.writerow(ates)
+                with open(new_data_config.to_ates_csv, 'a', newline='') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerow(errs)
 
-            with open(new_data_config.to_ates_csv, 'a', newline='') as csvfile:
-                writer = csv.writer(csvfile)
-                writer.writerow(errs)
-
-            fig.savefig(path+"\\"+str(figname))
-            plt.clf()
-            layers.append(layer)
+                fig.savefig(path+"\\"+str(figname))
+                plt.clf()
+                layers.append(layer)
+        except Exception as e:
+            print(e)
+                 
 
         return layers,expected_locs

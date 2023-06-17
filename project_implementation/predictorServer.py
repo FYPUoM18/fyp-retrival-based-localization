@@ -19,15 +19,19 @@ from fastdtw import fastdtw
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 import matplotlib.colors as mcolors
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+
 
 
 
 class Predictor:
 
-    def __init__(self,new_data_name,building_name,freq = 200,no_of_sec_per_split = 45):
+    def __init__(self,new_data_name,building_name,device_id,session_id,trainedBuilding_name="building_unib",freq = 200,no_of_sec_per_split = 45):
         self.out_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
-        self.new_data_root_dir = f"{self.out_dir}\\predictions\\{new_data_name}"
-        self.building_root_dir = f"{self.out_dir}\\{building_name}"
+        self.new_data_root_dir = f"{self.out_dir}\\predictions\\{building_name}_{device_id}_{session_id}"
+        self.building_root_dir = f"{self.out_dir}\\{trainedBuilding_name}"
         self.new_data_config = None
         self.building_data_config = None
         self.freq = freq
@@ -83,12 +87,12 @@ class Predictor:
         generate_imagedb.generateImageDB()
 
     def findMatchings(self):
-
+        print("start finding matching")
         new_data_config = self.new_data_config
         building_data_config=self.building_data_config
-
         evaluator = Evaluator()
         layers,expected_locs = evaluator.evaluate(new_data_config,building_data_config)
+        print("matchings predicted")
         return layers,expected_locs
 
     def getDTW(self,nplist1, nplist2):
@@ -217,61 +221,29 @@ class Predictor:
             plt.clf()
 
 
-samples = 10
-root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
-data_dir = f"{root_dir}\\building_unib\\nilocdata-subset\\unib\\unseen"
-prediction_dir = f"{root_dir}\\predictions"
-files = os.listdir(data_dir)
-preferred_files = {
-            'loc': 'computed/aligned_pos',
-            'gyro': "synced/gyro",
-            'acce': "synced/acce",
-            'game_rv': "synced/game_rv"
-        }
+# Define the request body model
+class PredictionRequest(BaseModel):
+    building_name: str
+    device_id: str
+    session_id: str
 
-for sample in range(samples):
+# Create the FastAPI application
+app = FastAPI()
 
+@app.post("/predict")
+def predict_locations(request: PredictionRequest):
     try:
-        plt.rcParams.update(plt.rcParamsDefault)
-        plt.close('all')
+        building_name = request.building_name
+        device_id = request.device_id
+        session_id = request.session_id
 
-        # Get Random File
-        file = random.choice(files)
+        root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
+        prediction_dir = f"{root_dir}\\predictions\\{building_name}_{device_id}_{session_id}" 
+        # Need to be repalced with session ID
 
-        # Generate Directory
-        outname = uuid.uuid4()
+        outname = os.listdir(prediction_dir)[0]
         freq = 200
-        secs = 150
-        csv_dir = f"{prediction_dir}\\{outname}\\1. csv_data\\db\\{uuid.uuid4()}"
-        os.makedirs(csv_dir)
-
-        # Open File
-        with h5py.File(f"{data_dir}\\{file}", 'r') as f:
-
-            # Sub Windows
-            sub_window =  None
-
-            # Get Fields
-            for filename, loc in preferred_files.items():
-                np_data = f.get(loc)
-
-                # Generate Random Sub Window
-                if sub_window is None:
-                    length = len(np_data)
-                    no_of_dpoints = freq*secs
-                    original_list = list(range(length))
-                    start_index = random.randint(0, length - no_of_dpoints)
-                    sub_window = original_list[start_index:start_index + no_of_dpoints]
-
-                if np_data != None:
-                    np_data = np_data[sub_window]
-                    time = f.get("synced/time")[sub_window]
-                    np_data = np.c_[time, np_data]
-                else:
-                    continue
-                np.savetxt(osp.join(csv_dir, filename + ".txt"), np_data, delimiter=" ")
-
-        predictor = Predictor(outname,"building_unib",freq,secs)
+        predictor = Predictor(outname,building_name,device_id,session_id,"building_unib",freq)
         predictor.generate_config()
         predictor.getRoNINTrajectory()
         predictor.visualizeTrajectory()
@@ -280,5 +252,9 @@ for sample in range(samples):
         layers,expected_locs = predictor.findMatchings()
         predictor.filterMatchings(layers,expected_locs)
 
+  
+
+        return JSONResponse({"message": "Prediction completed successfully."})
+
     except Exception as ex:
-        print(ex)
+        return JSONResponse({"message": str(ex)}, status_code=500)

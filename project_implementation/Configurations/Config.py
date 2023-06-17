@@ -3,7 +3,7 @@ import json
 
 class Config:
     def __init__(self,root_dir):
-        self.steps = [4,5,6]
+        self.steps = [9]
 
         # Building Params
         self.x_lim = 150

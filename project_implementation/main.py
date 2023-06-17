@@ -11,7 +11,7 @@ from history.DataStorer import DataStorer
 from history.LSTM import LSTM
 from floor_plan_builder.FingerPrintManager import FingerPrintManager
 
-root_dir = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs\\s_home"
+root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs\\building_unib"
 config = Config(root_dir)
 steps = config.steps
 
