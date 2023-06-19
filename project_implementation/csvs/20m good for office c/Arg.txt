@@ -1,0 +1,7 @@
+After considering several ATE
+we found <=5 best fit for this buitlding
+and we could identif unique motion for 20m (step 5 m) with acc around 75%
+K=5
+
+Can't predict exact location
+But can predict area  ( <= 10m )
