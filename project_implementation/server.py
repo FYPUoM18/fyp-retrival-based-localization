@@ -19,15 +19,27 @@ from fastdtw import fastdtw
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 import matplotlib.colors as mcolors
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, UploadFile, File
+from pydantic import BaseModel
+import os
+import uuid
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import base64
+
 
 
 
 class Predictor:
 
-    def __init__(self,new_data_name,building_name,freq = 200,no_of_sec_per_split = 60):
+    def __init__(self,new_data_name,building_name,device_id,session_id,trainedBuilding_name="building_unib",freq = 200,no_of_sec_per_split = 45):
         self.out_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
-        self.new_data_root_dir = f"{self.out_dir}\\predictions\\{new_data_name}"
-        self.building_root_dir = f"{self.out_dir}\\{building_name}"
+        self.new_data_root_dir = f"{self.out_dir}\\predictions\\{building_name}_{device_id}_{session_id}"
+        self.building_root_dir = f"{self.out_dir}\\{trainedBuilding_name}"
         self.new_data_config = None
         self.building_data_config = None
         self.freq = freq
@@ -83,12 +95,12 @@ class Predictor:
         generate_imagedb.generateImageDB()
 
     def findMatchings(self):
-
+        print("start finding matching")
         new_data_config = self.new_data_config
         building_data_config=self.building_data_config
-
         evaluator = Evaluator()
         layers,expected_locs = evaluator.evaluate(new_data_config,building_data_config)
+        print("matchings predicted")
         return layers,expected_locs
 
     def getDTW(self,nplist1, nplist2):
@@ -217,61 +229,39 @@ class Predictor:
             plt.clf()
 
 
-samples = 110
-root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
-data_dir = f"{root_dir}\\building_unib\\nilocdata-subset\\unib\\unseen"
-prediction_dir = f"{root_dir}\\predictions"
-files = os.listdir(data_dir)
-preferred_files = {
-            'loc': 'computed/aligned_pos',
-            'gyro': "synced/gyro",
-            'acce': "synced/acce",
-            'game_rv': "synced/game_rv"
-        }
+# Define the request body model
+class PredictionRequest(BaseModel):
+    building_name: str
+    device_id: str
+    session_id: str
 
-for sample in range(samples):
+# Create the FastAPI application
+app = FastAPI()
+origins = [
+    "*"
+]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+@app.post("/predict")
+def predict_locations(request: PredictionRequest):
     try:
-        plt.rcParams.update(plt.rcParamsDefault)
-        plt.close('all')
+        building_name = request.building_name
+        device_id = request.device_id
+        session_id = request.session_id
 
-        # Get Random File
-        file = random.choice(files)
+        root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
+        prediction_dir = f"{root_dir}\\predictions\\{building_name}_{device_id}_{session_id}" 
+        # Need to be repalced with session ID
 
-        # Generate Directory
-        outname = uuid.uuid4()
+        outname = os.listdir(prediction_dir)[0]
         freq = 200
-        secs = 150
-        csv_dir = f"{prediction_dir}\\{outname}\\1. csv_data\\db\\{uuid.uuid4()}"
-        os.makedirs(csv_dir)
-
-        # Open File
-        with h5py.File(f"{data_dir}\\{file}", 'r') as f:
-
-            # Sub Windows
-            sub_window =  None
-
-            # Get Fields
-            for filename, loc in preferred_files.items():
-                np_data = f.get(loc)
-
-                # Generate Random Sub Window
-                if sub_window is None:
-                    length = len(np_data)
-                    no_of_dpoints = freq*secs
-                    original_list = list(range(length))
-                    start_index = random.randint(0, length - no_of_dpoints)
-                    sub_window = original_list[start_index:start_index + no_of_dpoints]
-
-                if np_data != None:
-                    np_data = np_data[sub_window]
-                    time = f.get("synced/time")[sub_window]
-                    np_data = np.c_[time, np_data]
-                else:
-                    continue
-                np.savetxt(osp.join(csv_dir, filename + ".txt"), np_data, delimiter=" ")
-
-        predictor = Predictor(outname,"building_unib",freq,secs)
+        predictor = Predictor(outname,building_name,device_id,session_id,"building_unib",freq)
         predictor.generate_config()
         predictor.getRoNINTrajectory()
         predictor.visualizeTrajectory()
@@ -280,5 +270,109 @@ for sample in range(samples):
         layers,expected_locs = predictor.findMatchings()
         predictor.filterMatchings(layers,expected_locs)
 
+  
+
+        return JSONResponse({"message": "Prediction completed successfully."})
+
     except Exception as ex:
-        print(ex)
+        return JSONResponse({"message": str(ex)}, status_code=500)
+
+@app.post("/predicton_images")
+async def get_image( request_body: PredictionRequest):
+    # Access the building_name, device_id, and session_id from the request_body
+    building_name = request_body.building_name
+    device_id = request_body.device_id
+    session_id = request_body.session_id
+    root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
+
+   # Retrieve the list of image files from the specified folder
+    folder_path = f"{root_dir}\\predictions\\{building_name}_{device_id}_{session_id}\\predictions"  # Replace "images" with the path to your folder
+    image_files = os.listdir(folder_path)
+    image_files.sort()  # Sort the list of files
+
+    # Check if any image files exist
+    if image_files:
+        # Retrieve the first image file from the list
+        first_image = image_files[0]
+
+        # Construct the full path to the first image file
+        image_path = os.path.join(folder_path, first_image)
+
+          # Read the image file as binary data
+        with open(image_path, "rb") as file:
+            image_data = file.read()
+
+        # Convert the binary image data to Base64
+        image_base64 = base64.b64encode(image_data).decode("utf-8")
+
+        # Return the first image file as a Base64-encoded response with the appropriate media type
+        return JSONResponse({"image": image_base64}, media_type="application/json")
+    else:
+        # Raise an HTTPException with a 404 status code if no image files are found
+        raise HTTPException(status_code=404, detail="No image files found")
+    
+@app.post("/filtered_images")
+async def get_filtered_image( request_body: PredictionRequest):
+    # Access the building_name, device_id, and session_id from the request_body
+    building_name = request_body.building_name
+    device_id = request_body.device_id
+    session_id = request_body.session_id
+    root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
+
+   # Retrieve the list of image files from the specified folder
+    folder_path = f"{root_dir}\\predictions\\{building_name}_{device_id}_{session_id}\\filterings"  # Replace "images" with the path to your folder
+    image_files = os.listdir(folder_path)
+    image_files.sort()  # Sort the list of files
+
+    # Check if any image files exist
+    if image_files:
+        # Retrieve the first image file from the list
+        first_image = image_files[0]
+
+        # Construct the full path to the first image file
+        image_path = os.path.join(folder_path, first_image)
+
+          # Read the image file as binary data
+        with open(image_path, "rb") as file:
+            image_data = file.read()
+
+        # Convert the binary image data to Base64
+        image_base64 = base64.b64encode(image_data).decode("utf-8")
+
+        # Return the first image file as a Base64-encoded response with the appropriate media type
+        return JSONResponse({"image": image_base64}, media_type="application/json")
+    else:
+        # Raise an HTTPException with a 404 status code if no image files are found
+        raise HTTPException(status_code=404, detail="No image files found")         
+
+
+@app.get("/app_options")
+def get_folders():
+    root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
+    folder_path = f"{root_dir}\\predictions"
+    if not os.path.isdir(folder_path):
+        return {"message": "Invalid folder path"}
+
+    folders = [f for f in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, f))]
+
+    unique_buildings = set()
+    unique_devices = set()
+    unique_sessions = set()
+
+    for folder in folders:
+        # Split the folder name using "_" as the delimiter
+        parts = folder.split("_")
+
+        if len(parts) == 3:
+            building_name, device_id, session_id = parts
+
+            unique_buildings.add(building_name)
+            unique_devices.add(device_id)
+            unique_sessions.add(session_id)
+
+    return {
+        "folders": folders,
+        "unique_buildings": list(unique_buildings),
+        "unique_devices": list(unique_devices),
+        "unique_sessions": list(unique_sessions)
+    }
