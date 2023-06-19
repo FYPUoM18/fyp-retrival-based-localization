@@ -8,4 +8,4 @@ estimate the absolute indoor location,
 2. Given only a sequence of IMU data.
 3. Without using external infrastructure such as Wi-Fi, BLE, Floorplan, etc.
 
-![alt text](https://github.com/FYPUoM18/fyp-retrival-based-localization/blob/develop/architecture/diag.drawio.png)
+![alt text](https://github.com/FYPUoM18/fyp-retrival-based-localization/blob/develop/documents/archi_1/sample_architecture_1.drawio.png)
