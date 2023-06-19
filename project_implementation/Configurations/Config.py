@@ -3,7 +3,7 @@ import json
 
 class Config:
     def __init__(self,root_dir):
-        self.steps = [4,5]
+        self.steps = [4,5,6]
 
         # Building Params
         self.x_lim = 150
@@ -23,19 +23,19 @@ class Config:
             "train": {
                 "loc": f"{self.root_dir}\\nilocdata-subset\\unib\\seen",
                 "isseen": True,
-                "countperset": 2,
+                "countperset": 1,
                 "indb": False
             },
             "test": {
                 "loc": f"{self.root_dir}\\nilocdata-subset\\unib\\unseen",
                 "isseen": False,
-                "countperset": 2,
+                "countperset": 1,
                 "indb": False
             },
             "val": {
                 "loc": f"{self.root_dir}\\nilocdata-subset\\unib\\unseen",
                 "isseen": False,
-                "countperset": 2,
+                "countperset": 1,
                 "indb": False
 
             }
@@ -50,7 +50,7 @@ class Config:
         }
         # Step3: Generate Train/Test/Val From HDF5
         self.freq = 200  # Dpoints Per Sec
-        self.no_of_sec_per_split = 60 #45  # Windows Size
+        self.no_of_sec_per_split = 180 #45  # Windows Size
         self.train_test_val_meta_file = f"{self.root_dir}\\train_test_val_meta.csv"
 
         # Step4: Get RoNIN Trajectory
@@ -68,8 +68,8 @@ class Config:
         # Step7 : Image DB Generate
         self.image_db_loc = f"{self.root_dir}\\5. imageDB"
         self.image_db_meta_file = f"{self.root_dir}\\image_db_meta_file.csv"
-        self.window_size = 500 #400
-        self.step_size = 125 #150
+        self.window_size = 1000 #400
+        self.step_size = 100 #150
 
         # Step8 : Build KDTree
         self.image_db_loc_kdtree = f"{self.root_dir}\\5. imageDB\\db"
