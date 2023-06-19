@@ -150,14 +150,15 @@ class Evaluator:
                     err2 = self.err_dst(expected_real_loc,-1,predicted_real_loc,0)
                     err_flipped = (err1 + err2) / 2
 
-                    ate = min([ate_1,ate_2])
-                    err = min([err_normal,err_flipped])
-                    ax[i].text(0.25, 0.95, f'ATE: {ate:.2f}', transform=ax[i].transAxes, ha='left', va='top')
-                    ax[i].text(0.15, 0.95, f'ERR: {err:.2f}', transform=ax[i].transAxes, ha='left', va='bottom')
+                ate = min([ate_1,ate_2])
+                err = min([err_normal,err_flipped])
+                ax[i].text(0.25, 0.95, f'ATE: {ate:.2f}', transform=ax[i].transAxes, ha='left', va='top')
+                ax[i].text(0.15, 0.95, f'ERR: {err:.2f}', transform=ax[i].transAxes, ha='left', va='bottom')
 
-                    ates.append(str(ate))
-                    errs.append(str(err))
-                    layer.append(predicted_real_loc)
+                ate = min([ate_1,ate_2])
+                err = min([err_normal,err_flipped])
+                ax[i].text(0.15, 0.95, f'ATE: {ate:.2f}', transform=ax[i].transAxes, ha='left', va='top',fontsize=6)
+                # ax[i].text(0.15, 0.95, f'ERR: {err:.2f}', transform=ax[i].transAxes, ha='left', va='bottom')
 
                 with open(new_data_config.to_k_ates_csv, 'a', newline='') as csvfile:
                     writer = csv.writer(csvfile)

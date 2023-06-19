@@ -358,7 +358,7 @@ class Compiler:
                 is_gyro_shuffled = True
                 if folder == "ourmobile":
                     is_ours = True
-                    is_loc_available = True
+                    is_loc_available = False
                     is_gyro_shuffled = False
 
                 if folder == "mobile":
