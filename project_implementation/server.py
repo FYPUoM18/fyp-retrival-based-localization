@@ -22,6 +22,14 @@ import matplotlib.colors as mcolors
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, UploadFile, File
+from pydantic import BaseModel
+import os
+import uuid
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import base64
 
 
 
@@ -229,7 +237,17 @@ class PredictionRequest(BaseModel):
 
 # Create the FastAPI application
 app = FastAPI()
+origins = [
+    "*"
+]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.post("/predict")
 def predict_locations(request: PredictionRequest):
     try:
@@ -258,3 +276,103 @@ def predict_locations(request: PredictionRequest):
 
     except Exception as ex:
         return JSONResponse({"message": str(ex)}, status_code=500)
+
+@app.post("/predicton_images")
+async def get_image( request_body: PredictionRequest):
+    # Access the building_name, device_id, and session_id from the request_body
+    building_name = request_body.building_name
+    device_id = request_body.device_id
+    session_id = request_body.session_id
+    root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
+
+   # Retrieve the list of image files from the specified folder
+    folder_path = f"{root_dir}\\predictions\\{building_name}_{device_id}_{session_id}\\predictions"  # Replace "images" with the path to your folder
+    image_files = os.listdir(folder_path)
+    image_files.sort()  # Sort the list of files
+
+    # Check if any image files exist
+    if image_files:
+        # Retrieve the first image file from the list
+        first_image = image_files[0]
+
+        # Construct the full path to the first image file
+        image_path = os.path.join(folder_path, first_image)
+
+          # Read the image file as binary data
+        with open(image_path, "rb") as file:
+            image_data = file.read()
+
+        # Convert the binary image data to Base64
+        image_base64 = base64.b64encode(image_data).decode("utf-8")
+
+        # Return the first image file as a Base64-encoded response with the appropriate media type
+        return JSONResponse({"image": image_base64}, media_type="application/json")
+    else:
+        # Raise an HTTPException with a 404 status code if no image files are found
+        raise HTTPException(status_code=404, detail="No image files found")
+    
+@app.post("/filtered_images")
+async def get_filtered_image( request_body: PredictionRequest):
+    # Access the building_name, device_id, and session_id from the request_body
+    building_name = request_body.building_name
+    device_id = request_body.device_id
+    session_id = request_body.session_id
+    root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
+
+   # Retrieve the list of image files from the specified folder
+    folder_path = f"{root_dir}\\predictions\\{building_name}_{device_id}_{session_id}\\filterings"  # Replace "images" with the path to your folder
+    image_files = os.listdir(folder_path)
+    image_files.sort()  # Sort the list of files
+
+    # Check if any image files exist
+    if image_files:
+        # Retrieve the first image file from the list
+        first_image = image_files[0]
+
+        # Construct the full path to the first image file
+        image_path = os.path.join(folder_path, first_image)
+
+          # Read the image file as binary data
+        with open(image_path, "rb") as file:
+            image_data = file.read()
+
+        # Convert the binary image data to Base64
+        image_base64 = base64.b64encode(image_data).decode("utf-8")
+
+        # Return the first image file as a Base64-encoded response with the appropriate media type
+        return JSONResponse({"image": image_base64}, media_type="application/json")
+    else:
+        # Raise an HTTPException with a 404 status code if no image files are found
+        raise HTTPException(status_code=404, detail="No image files found")         
+
+
+@app.get("/app_options")
+def get_folders():
+    root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
+    folder_path = f"{root_dir}\\predictions"
+    if not os.path.isdir(folder_path):
+        return {"message": "Invalid folder path"}
+
+    folders = [f for f in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, f))]
+
+    unique_buildings = set()
+    unique_devices = set()
+    unique_sessions = set()
+
+    for folder in folders:
+        # Split the folder name using "_" as the delimiter
+        parts = folder.split("_")
+
+        if len(parts) == 3:
+            building_name, device_id, session_id = parts
+
+            unique_buildings.add(building_name)
+            unique_devices.add(device_id)
+            unique_sessions.add(session_id)
+
+    return {
+        "folders": folders,
+        "unique_buildings": list(unique_buildings),
+        "unique_devices": list(unique_devices),
+        "unique_sessions": list(unique_sessions)
+    }
