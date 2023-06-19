@@ -77,11 +77,15 @@ class TrajVisualizer:
 
 
     def drawRoNINTraj(self):
-        if os.path.exists(self.conf.traj_drawing_out_dir):
-            shutil.rmtree(self.conf.traj_drawing_out_dir)
-
+        print("Drawing Traj For RoNIN")
+        try:
+            if os.path.exists(self.conf.traj_drawing_out_dir):
+                shutil.rmtree(self.conf.traj_drawing_out_dir)
+        except Exception as e:
+            print(e)        
+        print("Drawing Traj For RoNIN 2")
         list_of_hdf5s = self.get_all_hdf5_list()
-
+        print("Drawing Traj For :",hdf5[0],hdf5[1])
         # Draw DB Traj
         with open(self.conf.train_test_val_meta_file, "r") as f:
             reader = csv.reader(f, delimiter=",")
@@ -105,4 +109,5 @@ class TrajVisualizer:
                     print(e)
 
         for hdf5 in list_of_hdf5s:
+        
             self.drawTrajAll(hdf5)

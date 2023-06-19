@@ -82,6 +82,7 @@ class Predictor:
         csvmeta = [["OType", "Target Folder", "Source Folder", "Source Start Index", "Source End Index"]]
         np.savetxt(config.train_test_val_meta_file, np.array(csvmeta), delimiter=",", fmt='%s')
         traj_visualizer = TrajVisualizer(config)
+        print("visualizing trajectory")
         traj_visualizer.drawRoNINTraj()
 
     def makeTimeInvariant(self):
@@ -263,12 +264,19 @@ def predict_locations(request: PredictionRequest):
         freq = 200
         predictor = Predictor(outname,building_name,device_id,session_id,"building_unib",freq)
         predictor.generate_config()
+        print("Config generated")
         predictor.getRoNINTrajectory()
+        print("RoNIN trajectory generated")
         predictor.visualizeTrajectory()
+        print("Trajectory visualized")
         predictor.makeTimeInvariant()
+        print("Time invariance applied")
         predictor.generateImageDB()
+        print("Image DB generated")
         layers,expected_locs = predictor.findMatchings()
+        print("Matchings found")
         predictor.filterMatchings(layers,expected_locs)
+        print("Matchings filtered")
 
   
 

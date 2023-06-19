@@ -137,9 +137,9 @@ class DomainConverter:
         return np.array(codes)
 
     def make_time_invariant(self):
-
+        print("Making Time Invariant Trajectories")
         folders = list(os.listdir(self.conf.traj_drawing_out_dir))
-
+        print("Making Time Invariant Trajectories")
         for folder in folders:
             datasets = list(os.listdir(os.path.join(self.conf.traj_drawing_out_dir, folder)))
             for dataset in datasets:
@@ -163,7 +163,8 @@ class DomainConverter:
                         shutil.copy(png_path1, os.path.join(data_out_dir, "ground_full_traj.png"))
                         shutil.copy(png_path2, os.path.join(data_out_dir, "ronin_full_traj.png"))
                         shutil.copy(png_path3, os.path.join(data_out_dir, "traj_in_db.png"))
-                    except:
+                    except Exception as e:
+                        print(e)
                         pass
                     # Read CSV, Get No Of Segments, Make Time Invariant
                     data = np.genfromtxt(csv_path, delimiter=',')
