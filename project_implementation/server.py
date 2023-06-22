@@ -14,6 +14,7 @@ from domain_mapper.convert_domain import DomainConverter
 from DBManager.DBManager import DBManager
 from DBManager.eval import Evaluator
 from scipy.spatial.distance import euclidean
+from typing_extensions import Annotated
 from os import path as osp
 from fastdtw import fastdtw
 import matplotlib.pyplot as plt
@@ -22,7 +23,7 @@ import matplotlib.colors as mcolors
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File,Form
 from pydantic import BaseModel
 import os
 import uuid
@@ -30,15 +31,15 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import base64
+import uvicorn
 
-
-
+root_dir_of_output = "C:\\Users\\mashk\\MyFiles\\Semester 8\\FYP\\code\\project_implementation\\outputs"
 
 class Predictor:
 
     def __init__(self,new_data_name,building_name,device_id,session_id,trainedBuilding_name="building_unib",freq = 200,no_of_sec_per_split = 45):
-        self.out_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
-        self.new_data_root_dir = f"{self.out_dir}\\predictions\\{building_name}_{device_id}_{session_id}"
+        self.out_dir = root_dir_of_output
+        self.new_data_root_dir = f"{self.out_dir}\\mobile_pred\\{building_name}_{device_id}_{session_id}"
         self.building_root_dir = f"{self.out_dir}\\{trainedBuilding_name}"
         self.new_data_config = None
         self.building_data_config = None
@@ -236,6 +237,7 @@ class PredictionRequest(BaseModel):
     device_id: str
     session_id: str
 
+
 # Create the FastAPI application
 app = FastAPI()
 origins = [
@@ -249,6 +251,44 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+import os
+from fastapi import FastAPI, UploadFile, File
+from typing import List
+
+app = FastAPI()
+
+
+@app.post("/upload")
+async def upload_files(building_name: Annotated[str, Form()], device_id: Annotated[str, Form()], session_id: Annotated[str, Form()], files: List[UploadFile] = File(...)):
+    # Create the main directory if it doesn't exist
+    print(building_name,device_id,session_id,files)
+    main_directory = f"{root_dir_of_output}\\mobile_pred"
+    if not os.path.exists(main_directory):
+        os.makedirs(main_directory)
+
+    # Create the subdirectory
+    subdirectory = f"{building_name}_{device_id}_{session_id}"
+    subdirectory_path = os.path.join(main_directory, subdirectory)
+    if not os.path.exists(subdirectory_path):
+        os.makedirs(subdirectory_path)
+
+    # Create the csv_data folder inside the subdirectory
+    csv_folder_path = os.path.join(subdirectory_path, "1. csv_data","db","1")
+    if not os.path.exists(csv_folder_path):
+        os.makedirs(csv_folder_path)
+
+    # Save the files in the csv_data folder
+    for file in files:
+        file_path = os.path.join(csv_folder_path, file.filename)
+        with open(file_path, "wb") as f:
+            contents = await file.read()
+            f.write(contents)
+
+    # Return a response
+    return {"message": "Files uploaded successfully"}
+
+
 @app.post("/predict")
 def predict_locations(request: PredictionRequest):
     try:
@@ -256,13 +296,14 @@ def predict_locations(request: PredictionRequest):
         device_id = request.device_id
         session_id = request.session_id
 
-        root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
-        prediction_dir = f"{root_dir}\\predictions\\{building_name}_{device_id}_{session_id}" 
+        root_dir = root_dir_of_output
+        prediction_dir = f"{root_dir}\\mobile_pred\\{building_name}_{device_id}_{session_id}"
         # Need to be repalced with session ID
 
         outname = os.listdir(prediction_dir)[0]
+        print(outname)
         freq = 200
-        predictor = Predictor(outname,building_name,device_id,session_id,"building_unib",freq)
+        predictor = Predictor(outname,building_name,device_id,session_id,building_name,freq)
         predictor.generate_config()
         print("Config generated")
         predictor.getRoNINTrajectory()
@@ -291,17 +332,17 @@ async def get_image( request_body: PredictionRequest):
     building_name = request_body.building_name
     device_id = request_body.device_id
     session_id = request_body.session_id
-    root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
+    root_dir = root_dir_of_output
 
    # Retrieve the list of image files from the specified folder
-    folder_path = f"{root_dir}\\predictions\\{building_name}_{device_id}_{session_id}\\predictions"  # Replace "images" with the path to your folder
+    folder_path = f"{root_dir}\\mobile_pred\\{building_name}_{device_id}_{session_id}\\predictions"  # Replace "images" with the path to your folder
     image_files = os.listdir(folder_path)
     image_files.sort()  # Sort the list of files
 
     # Check if any image files exist
     if image_files:
-        # Retrieve the first image file from the list
-        first_image = image_files[0]
+        # Retrieve the last image file from the list
+        first_image = image_files[-1]
 
         # Construct the full path to the first image file
         image_path = os.path.join(folder_path, first_image)
@@ -325,17 +366,17 @@ async def get_filtered_image( request_body: PredictionRequest):
     building_name = request_body.building_name
     device_id = request_body.device_id
     session_id = request_body.session_id
-    root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
+    root_dir = root_dir_of_output
 
    # Retrieve the list of image files from the specified folder
-    folder_path = f"{root_dir}\\predictions\\{building_name}_{device_id}_{session_id}\\filterings"  # Replace "images" with the path to your folder
+    folder_path = f"{root_dir}\\mobile_pred\\{building_name}_{device_id}_{session_id}\\filterings"  # Replace "images" with the path to your folder
     image_files = os.listdir(folder_path)
     image_files.sort()  # Sort the list of files
 
     # Check if any image files exist
     if image_files:
-        # Retrieve the first image file from the list
-        first_image = image_files[0]
+        # Retrieve the last image file from the list
+        first_image = image_files[-1]
 
         # Construct the full path to the first image file
         image_path = os.path.join(folder_path, first_image)
@@ -356,8 +397,8 @@ async def get_filtered_image( request_body: PredictionRequest):
 
 @app.get("/app_options")
 def get_folders():
-    root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
-    folder_path = f"{root_dir}\\predictions"
+    root_dir = root_dir_of_output
+    folder_path = f"{root_dir}\\mobile_pred"
     if not os.path.isdir(folder_path):
         return {"message": "Invalid folder path"}
 
@@ -384,3 +425,6 @@ def get_folders():
         "unique_devices": list(unique_devices),
         "unique_sessions": list(unique_sessions)
     }
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
