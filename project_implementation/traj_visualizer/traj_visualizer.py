@@ -24,31 +24,31 @@ class TrajVisualizer:
         return list_of_hdf5s
 
     def drawTrajAll(self, hdf5):
+        
 
         with h5py.File(hdf5[2], 'r') as f:
-
             # Define and Create Directory/Path
             save_path = osp.join(self.conf.traj_drawing_out_dir, hdf5[0], hdf5[1])
             ground_img_path = osp.join(self.conf.traj_drawing_out_dir, hdf5[0], hdf5[1], "ground_full_traj.png")
             ronin_img_path = osp.join(self.conf.traj_drawing_out_dir, hdf5[0], hdf5[1], "ronin_full_traj.png")
+           
             csv_path = osp.join(self.conf.traj_drawing_out_dir, hdf5[0], hdf5[1], "full_traj.csv")
-
             if not os.path.exists(save_path):
                 os.makedirs(save_path)
-
+           
             # Get Trajectory
             ronin = f.get("computed/ronin")[:]
-
-
 
             # Plot and Save
             x = ronin[:, 0]
             y = ronin[:, 1]
-
-
+            print("Drawing Traj For :",2213)
             plt.scatter(x=x, y=y, s=0.01, linewidths=0.01, c="blue", label="RoNIN")
+            print("Drawing Traj For :",2213)
             plt.axis('off')
+            print("Drawing Traj For :",213) 
             plt.savefig(ronin_img_path, dpi=100)
+            print("Drawing Traj For :",2113)
             plt.clf()
             print("Saved", ronin_img_path)
 
@@ -63,7 +63,7 @@ class TrajVisualizer:
                 print("Saved", ground_img_path)
 
             except Exception as e:
-                print(e)
+                print("Error",e)
 
 
             # Create CSV
@@ -72,7 +72,6 @@ class TrajVisualizer:
                 csv_data = np.concatenate((ronin,real_locs), axis=1)
             else:
                 csv_data = np.array(ronin)
-
             np.savetxt(csv_path, csv_data, delimiter=",",fmt='%.16f',comments='',header=','.join(["traj_ronin_x","traj_ronin_y","traj_real_x","traj_real_y"]))
 
 
@@ -85,9 +84,10 @@ class TrajVisualizer:
             print(e)        
         print("Drawing Traj For RoNIN 2")
         list_of_hdf5s = self.get_all_hdf5_list()
-        print("Drawing Traj For :",hdf5[0],hdf5[1])
+
         # Draw DB Traj
         with open(self.conf.train_test_val_meta_file, "r") as f:
+            print("Drawing Traj For RoNIN 3")
             reader = csv.reader(f, delimiter=",")
             for i, (otype1,target,source,start,end) in enumerate(reader):
                 try:

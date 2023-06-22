@@ -217,7 +217,7 @@ class Predictor:
             plt.clf()
 
 
-samples = 110
+samples = 10
 root_dir = "C:\\Users\\musab\\OneDrive\\Desktop\\projects\\fyp\\fyp-retrival-based-localization\\project_implementation\\outputs"
 data_dir = f"{root_dir}\\building_unib\\nilocdata-subset\\unib\\unseen"
 prediction_dir = f"{root_dir}\\predictions"
